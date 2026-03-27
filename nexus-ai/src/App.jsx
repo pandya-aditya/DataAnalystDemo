@@ -7,7 +7,7 @@ import SettingsOverlay from './components/SettingsOverlay'
 import ChartOverlay from './components/ChartOverlay'
 import LoginPage from './components/Loginpage'
 import OnboardingPage from './components/OnboardingPage'
-import { INTEGRATIONS } from './constants/data'
+import { CONVERSATIONS } from './constants/data'
 
 export default function App() {
   const THEME_STORAGE_KEY = 'nexus-theme'
@@ -15,12 +15,17 @@ export default function App() {
   const [userProfile, setUserProfile] = useState(null)
 
   // ── Core state ──────────────────────────────────────────────
+  const [activeConversationId, setActiveConversationId] = useState(null)
   const [sessionName, setSessionName]              = useState('New conversation')
   const [messages, setMessages]                    = useState([])      // array of { type, ...props }
+  const [completedActions, setCompletedActions]    = useState([])      // array of { id, text, time }
   const [inputValue, setInputValue]                = useState('')
+  const [guidedPrompt, setGuidedPrompt]            = useState(null)
+  const [showConversation, setShowConversation]    = useState(false)
   const [contextPanelOpen, setContextPanelOpen]   = useState(false)
   const [settingsOpen, setSettingsOpen]            = useState(false)
   const [chartOverlayOpen, setChartOverlayOpen]   = useState(false)
+  const [chartOverlayKey, setChartOverlayKey]     = useState(null)
   const [themeMode, setThemeMode]                 = useState(() => {
     if (typeof window === 'undefined') return 'light'
     const stored = window.localStorage.getItem(THEME_STORAGE_KEY)
@@ -66,29 +71,117 @@ export default function App() {
     return t
   }, [])
 
-  const getTimeLabel = () => {
+  const guidedSubmittedRef = useRef(false)
+  const actionIdRef = useRef(0)
+
+  const getTimeLabel = useCallback(() => {
     const now = new Date()
     return `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`
-  }
+  }, [])
 
-  const getSessionTitle = (text) => {
+  const getSessionTitle = useCallback((text) => {
     const compact = String(text || '').trim().replace(/\s+/g, ' ')
     if (!compact) return 'New conversation'
     return compact.length <= 38 ? compact : `${compact.slice(0, 38)}…`
-  }
+  }, [])
 
-  const connectedSources = INTEGRATIONS.filter(i => i.connected).map(i => i.name)
+  const addCompletedAction = useCallback((text) => {
+    const trimmed = String(text || '').trim()
+    if (!trimmed) return
+    actionIdRef.current += 1
+    const next = { id: actionIdRef.current, text: trimmed, time: getTimeLabel() }
+    setCompletedActions(prev => [...prev, next])
+  }, [getTimeLabel])
+
+  const queueCompletedActions = useCallback((lines, startDelayMs = 0) => {
+    const list = Array.isArray(lines) ? lines : []
+    list.forEach((line, i) => {
+      delay(() => addCompletedAction(line), startDelayMs + i * 280)
+    })
+  }, [addCompletedAction, delay])
+
+  const handleInputValueChange = useCallback((nextRawValue) => {
+    if (!guidedPrompt) {
+      setInputValue(nextRawValue)
+      return
+    }
+    const nextLen = Math.min(nextRawValue.length, guidedPrompt.length)
+    setInputValue(guidedPrompt.slice(0, nextLen))
+  }, [guidedPrompt])
+
+  const startConversation = useCallback((id) => {
+    clearTimers()
+    setActiveConversationId(id)
+    setSessionName(CONVERSATIONS[id].name)
+    setMessages([])
+    setCompletedActions([])
+    setShowConversation(true)
+    suppressContextPanelAutoOpenRef.current = false
+    setContextPanelOpen(false)
+
+    guidedSubmittedRef.current = false
+    setGuidedPrompt(CONVERSATIONS[id].prompt)
+    setInputValue('')
+  }, [clearTimers])
+
+  useEffect(() => {
+    if (!guidedPrompt) return
+    if (activeConversationId == null) return
+    if (guidedSubmittedRef.current) return
+    if (inputValue.length < guidedPrompt.length) return
+
+    guidedSubmittedRef.current = true
+    const id = activeConversationId
+    const c = CONVERSATIONS[id]
+    setGuidedPrompt(null)
+
+    delay(() => {
+      setInputValue('')
+      setMessages([{ type: 'user', text: c.prompt, time: getTimeLabel() }])
+
+      delay(() => {
+        setMessages(prev => [...prev, { type: 'trace', lines: c.traces, collapsing: false }])
+        queueCompletedActions(c.traces)
+
+        const perLine = 280
+        const totalTrace = c.traces.length * perLine + 600
+        delay(() => {
+          setMessages(prev => prev.map(m => m.type === 'trace' ? { ...m, collapsing: true } : m))
+          delay(() => {
+            setMessages(prev => [
+              ...prev.filter(m => m.type !== 'trace'),
+              { type: 'ai', templateId: id }
+            ])
+            delay(() => {
+              if (!suppressContextPanelAutoOpenRef.current) openContextPanel()
+            }, 800)
+          }, 350)
+        }, totalTrace)
+      }, 400)
+    }, 600)
+  }, [activeConversationId, delay, getTimeLabel, guidedPrompt, inputValue.length, openContextPanel, queueCompletedActions])
 
   const sendMessage = useCallback(() => {
+    if (guidedPrompt) return
     const trimmed = inputValue.trim()
     if (!trimmed) return
 
     clearTimers()
     suppressContextPanelAutoOpenRef.current = false
+    setShowConversation(true)
 
     if (messages.length === 0) setSessionName(getSessionTitle(trimmed))
+    setActiveConversationId(null)
     setMessages(prev => [...prev, { type: 'user', text: trimmed, time: getTimeLabel() }])
     setInputValue('')
+
+    const simulated = [
+      'Interpreting request…',
+      'Querying connected sources…',
+      'Synthesizing results…',
+      'Drafting response…',
+    ]
+    queueCompletedActions(simulated, 200)
 
     delay(() => {
       setMessages(prev => [
@@ -98,19 +191,24 @@ export default function App() {
           text: "Got it — I’m pulling the latest across your connected sources and will summarize what matters.",
         },
       ])
+    }, 450)
+  }, [clearTimers, delay, getSessionTitle, getTimeLabel, guidedPrompt, inputValue, messages.length, queueCompletedActions])
 
-      delay(() => {
-        if (!suppressContextPanelAutoOpenRef.current) openContextPanel()
-      }, 500)
-    }, 500)
-  }, [clearTimers, delay, inputValue, messages.length, openContextPanel])
+  const expandChart = useCallback((key) => {
+    setChartOverlayKey(key)
+    setChartOverlayOpen(true)
+  }, [])
 
   // ── Reset ─────────────────────────────────────────────────────
   const resetToEmpty = useCallback(() => {
     clearTimers()
+    setActiveConversationId(null)
     setSessionName('New conversation')
     setMessages([])
+    setCompletedActions([])
+    setShowConversation(false)
     setInputValue('')
+    setGuidedPrompt(null)
     suppressContextPanelAutoOpenRef.current = true
     setContextPanelOpen(false)
   }, [clearTimers])
@@ -177,7 +275,6 @@ export default function App() {
 
   const workspaceName = userProfile?.name?.trim() || 'D2C Apparel Co.'
   const profileInitials = getInitials(workspaceName)
-  const showConversation = messages.length > 0
 
   return (
     <>
@@ -194,18 +291,22 @@ export default function App() {
           workspaceName={workspaceName}
           onReset={resetToEmpty}
           onSettingsOpen={() => setSettingsOpen(true)}
+          onOpenConversation={startConversation}
+          activeConversationId={activeConversationId}
         />
         <CanvasArea
           showConversation={showConversation}
           messages={messages}
           inputValue={inputValue}
-          setInputValue={setInputValue}
+          setInputValue={handleInputValueChange}
+          onStartConversation={startConversation}
           onSend={sendMessage}
           userName={workspaceName}
+          onExpandChart={expandChart}
         />
         <ContextPanel
           open={contextPanelOpen}
-          sources={connectedSources}
+          actions={completedActions}
           onClose={closeContextPanel}
         />
       </div>
@@ -218,6 +319,7 @@ export default function App() {
       <ChartOverlay
         open={chartOverlayOpen}
         onClose={() => setChartOverlayOpen(false)}
+        chartKey={chartOverlayKey}
       />
     </>
   )

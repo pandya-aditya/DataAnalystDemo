@@ -1,6 +1,12 @@
-const HISTORY = []
+const HISTORY = [
+  { id: 1, conversationId: 1, name: 'Blended CAC vs LTV Analysis', time: '2m',  section: 'Today' },
+  { id: 2, conversationId: 2, name: 'Profit Dip Root Cause',        time: '18m', section: 'Today' },
+  { id: 3, conversationId: 3, name: 'Winter Collection Reorder',     time: '1h',  section: 'Today' },
+  { id: 4, conversationId: 4, name: 'Monday Morning Briefing',       time: '1d',  section: 'Yesterday' },
+  { id: 5, conversationId: null, name: 'Q3 Revenue Attribution',     time: '2d',  section: 'Yesterday' },
+]
 
-export default function Sidebar({ workspaceName, onReset, onSettingsOpen }) {
+export default function Sidebar({ activeConversationId, workspaceName, onOpenConversation, onReset, onSettingsOpen }) {
   return (
     <aside className="sidebar">
       <div className="sidebar-top">
@@ -13,24 +19,24 @@ export default function Sidebar({ workspaceName, onReset, onSettingsOpen }) {
       </div>
 
       <div className="sidebar-history">
-        {HISTORY.length > 0 ? (
-          ['Today', 'Yesterday'].map(section => (
-            <div key={section}>
-              <div className="history-section-label">{section}</div>
-              {HISTORY.filter(h => h.section === section).map(item => (
-                <div key={item.id} className="history-item">
-                  <div className="history-dot" />
-                  <div className="history-name">{item.name}</div>
-                  <div className="history-time">{item.time}</div>
-                </div>
-              ))}
-            </div>
-          ))
-        ) : (
-          <div style={{ padding: '10px 10px', color: 'var(--text-muted)', fontSize: '12px' }}>
-            No recent conversations.
+        {['Today', 'Yesterday'].map(section => (
+          <div key={section}>
+            <div className="history-section-label">{section}</div>
+            {HISTORY.filter(h => h.section === section).map(item => (
+              <div
+                key={item.id}
+                className={`history-item${activeConversationId === item.conversationId ? ' active' : ''}`}
+                onClick={() => item.conversationId && onOpenConversation?.(item.conversationId)}
+                role={item.conversationId ? 'button' : undefined}
+                tabIndex={item.conversationId ? 0 : -1}
+              >
+                <div className="history-dot" />
+                <div className="history-name">{item.name}</div>
+                <div className="history-time">{item.time}</div>
+              </div>
+            ))}
           </div>
-        )}
+        ))}
       </div>
 
       <div className="sidebar-bottom">

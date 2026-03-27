@@ -14,8 +14,8 @@ export default function Topbar({ sessionName, workspaceName, profileInitials, on
           className={`sources-toggle-btn${sourcesOpen ? ' on' : ''}`}
           onClick={onSourcesToggle}
           aria-expanded={sourcesOpen}
-          aria-label={sourcesOpen ? 'Hide queried sources' : 'Show queried sources'}
-          title={sourcesOpen ? 'Hide queried sources' : 'Show queried sources'}
+          aria-label={sourcesOpen ? 'Hide activity' : 'Show activity'}
+          title={sourcesOpen ? 'Hide activity' : 'Show activity'}
         >
           <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
             <path d="M4 5h10"/>

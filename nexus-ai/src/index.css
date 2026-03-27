@@ -986,16 +986,22 @@ input, textarea { font-family: inherit; }
   margin-bottom: 10px;
   font-weight: 500;
 }
-.source-item {
+.action-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 8px 0;
   border-bottom: 1px solid var(--border-subtle);
 }
-.source-item:last-child { border-bottom: none; }
-.source-name { font-size: 12px; color: var(--text-secondary); }
-.source-status {
+.action-item:last-child { border-bottom: none; }
+.action-main { display: flex; flex-direction: column; gap: 2px; padding-right: 10px; }
+.action-name { font-size: 12px; color: var(--text-secondary); }
+.action-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+.action-status {
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   color: var(--green-positive);
@@ -1003,7 +1009,7 @@ input, textarea { font-family: inherit; }
   align-items: center;
   gap: 4px;
 }
-.source-status::before {
+.action-status::before {
   content: '';
   width: 5px;
   height: 5px;
