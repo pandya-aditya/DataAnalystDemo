@@ -1,4 +1,4 @@
-import { Children, Fragment, cloneElement, isValidElement, useCallback, useEffect, useState } from 'react'
+import { Children, Fragment, cloneElement, isValidElement, useCallback, useEffect, useRef, useState } from 'react'
 import { useSourceAccess } from './SourceAccessContext'
 
 const INTERNAL_ACTION_SOURCES = new Set(['Pipelines'])
@@ -183,13 +183,14 @@ function findAllTextByClass(node, classToken) {
   return out
 }
 
-function attachActionButtonHandlers(node, { onAction }) {
+function attachActionButtonHandlers(node, ctx) {
+  const { onAction, cardKey, runState } = ctx
   if (!isValidElement(node)) return node
   const cn = node.props?.className || ''
   const classStr = typeof cn === 'string' ? cn : ''
 
   const children = flattenChildren(node.props?.children)
-  const nextChildren = children.map(c => attachActionButtonHandlers(c, { onAction }))
+  const nextChildren = children.map(c => attachActionButtonHandlers(c, ctx))
 
   const isActionBtn = node.type === 'button' && (
     classStr.includes('action-btn-primary') || classStr.includes('action-btn-ghost')
@@ -197,18 +198,36 @@ function attachActionButtonHandlers(node, { onAction }) {
 
   if (isActionBtn) {
     const label = collectText(node.props?.children).trim() || 'Action'
+    const btnKey = `${cardKey}::${label}`
+    const phase = runState[btnKey]
     const prevOnClick = node.props?.onClick
+    const baseClass = classStr.replace(/\s+action-btn-executing\b|\s+action-btn-completed\b/g, '').trim()
+    const phaseClass =
+      phase === 'executing' ? 'action-btn-executing'
+        : phase === 'completed' ? 'action-btn-completed'
+          : ''
+    const mergedClass = [baseClass, phaseClass].filter(Boolean).join(' ')
+    const shownText =
+      phase === 'executing' ? 'Executing'
+        : phase === 'completed' ? 'Completed'
+          : null
     return cloneElement(
       node,
       {
         ...node.props,
         type: node.props?.type ?? 'button',
+        className: mergedClass,
+        disabled: Boolean(phase),
         onClick: (e) => {
+          if (phase) {
+            e.preventDefault()
+            return
+          }
           prevOnClick?.(e)
           onAction(label)
         },
       },
-      ...nextChildren,
+      shownText ?? nextChildren,
     )
   }
 
@@ -253,7 +272,7 @@ function PromptPills({ prompts, onSuggestedPrompt }) {
   )
 }
 
-function ActionCards({ cards, sectionPrefix, doneKeys, onMarkAction }) {
+function ActionCards({ cards, sectionPrefix, doneKeys, runState, onMarkAction }) {
   if (!Array.isArray(cards) || cards.length === 0) return <EmptyState label="No actions" />
   return (
     <div className="action-cards">
@@ -265,6 +284,8 @@ function ActionCards({ cards, sectionPrefix, doneKeys, onMarkAction }) {
             : c
         const withHandlers = attachActionButtonHandlers(resolved, {
           onAction: (label) => onMarkAction(key, label),
+          cardKey: key,
+          runState,
         })
         return <Fragment key={key}>{withHandlers}</Fragment>
       })}
@@ -272,21 +293,32 @@ function ActionCards({ cards, sectionPrefix, doneKeys, onMarkAction }) {
   )
 }
 
-export default function AgentResponseLayout({ children, onSuggestedPrompt }) {
+const ACTION_RUN_MS = 1500
+
+export default function AgentResponseLayout({ children, onSuggestedPrompt, onAgentActionCompleted }) {
   const { canWrite } = useSourceAccess()
   const [doneActionKeys, setDoneActionKeys] = useState(() => new Set())
-  const [agentFeedback, setAgentFeedback] = useState(null)
+  const [runState, setRunState] = useState({})
+  const runTimeoutsRef = useRef([])
+  const actionRunInflightRef = useRef(new Set())
 
-  useEffect(() => {
-    if (!agentFeedback) return undefined
-    const t = window.setTimeout(() => setAgentFeedback(null), 4200)
-    return () => window.clearTimeout(t)
-  }, [agentFeedback])
+  useEffect(() => () => {
+    runTimeoutsRef.current.forEach((id) => window.clearTimeout(id))
+    runTimeoutsRef.current = []
+  }, [])
 
   const onMarkAction = useCallback((cardKey, label) => {
-    setDoneActionKeys(prev => new Set(prev).add(cardKey))
-    setAgentFeedback({ text: label })
-  }, [])
+    const btnKey = `${cardKey}::${label}`
+    if (actionRunInflightRef.current.has(btnKey)) return
+    actionRunInflightRef.current.add(btnKey)
+    setRunState((prev) => ({ ...prev, [btnKey]: 'executing' }))
+    const t = window.setTimeout(() => {
+      setRunState((prev) => ({ ...prev, [btnKey]: 'completed' }))
+      setDoneActionKeys((prev) => new Set(prev).add(cardKey))
+      onAgentActionCompleted?.({ text: label })
+    }, ACTION_RUN_MS)
+    runTimeoutsRef.current.push(t)
+  }, [onAgentActionCompleted])
 
   const nodes = flattenChildren(children)
 
@@ -330,25 +362,6 @@ export default function AgentResponseLayout({ children, onSuggestedPrompt }) {
 
   return (
     <div className="agent-response-sections">
-      {agentFeedback ? (
-        <div className="agent-action-feedback" role="status" aria-live="polite">
-          <span className="agent-action-feedback-icon" aria-hidden>
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path
-                d="M11.5 3.5L5.2 9.8 2.5 7"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </span>
-          <span className="agent-action-feedback-text">
-            <span className="agent-action-feedback-label">Nexus</span>
-            ran <strong>{agentFeedback.text}</strong>
-          </span>
-        </div>
-      ) : null}
       {analysisBlock?.length ? <Section>{analysisBlock}</Section> : null}
       {data.length ? <Section>{data}</Section> : null}
       {prompts.length ? (
@@ -362,6 +375,7 @@ export default function AgentResponseLayout({ children, onSuggestedPrompt }) {
             cards={taken}
             sectionPrefix="taken"
             doneKeys={doneActionKeys}
+            runState={runState}
             onMarkAction={onMarkAction}
           />
         </Section>
@@ -372,6 +386,7 @@ export default function AgentResponseLayout({ children, onSuggestedPrompt }) {
             cards={needsPermission}
             sectionPrefix="needs"
             doneKeys={doneActionKeys}
+            runState={runState}
             onMarkAction={onMarkAction}
           />
         </Section>

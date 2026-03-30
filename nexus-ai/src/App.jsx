@@ -9,6 +9,7 @@ import ChartOverlay from './components/ChartOverlay'
 import LoginPage from './components/Loginpage'
 import OnboardingPage from './components/OnboardingPage'
 import { CONVERSATIONS } from './constants/data'
+import { PREDEFINED_COMPLETED_ACTIONS } from './constants/completedActionsSeed'
 import { buildRoleSession } from './constants/roleSessions'
 
 export default function App() {
@@ -28,7 +29,7 @@ export default function App() {
   })
   const [sessionName, setSessionName]              = useState('New conversation')
   const [messages, setMessages]                    = useState([])
-  const [completedActions, setCompletedActions]    = useState([])
+  const [completedActions, setCompletedActions]    = useState(() => [...PREDEFINED_COMPLETED_ACTIONS])
   const [inputValue, setInputValue]                = useState('')
   const [agentResponding, setAgentResponding]      = useState(false)
   const agentRespondingRef                         = useRef(false)
@@ -126,7 +127,6 @@ export default function App() {
   const guidedSubmittedRef = useRef(false)
   const guidedSessionRef = useRef(null)
   const guidedStepIndexRef = useRef(0)
-  const actionIdRef = useRef(0)
 
   const getTimeLabel = useCallback(() => {
     const now = new Date()
@@ -143,14 +143,6 @@ export default function App() {
     if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') return crypto.randomUUID()
     return `${Date.now()}-${Math.random().toString(16).slice(2)}`
   }, [])
-
-  const addCompletedAction = useCallback((text) => {
-    const trimmed = String(text || '').trim()
-    if (!trimmed) return
-    actionIdRef.current += 1
-    const next = { id: actionIdRef.current, text: trimmed, time: getTimeLabel(), status: 'done' }
-    setCompletedActions(prev => [...prev, next])
-  }, [getTimeLabel])
 
   const requestRevertCompletedAction = useCallback((action) => {
     if (!action || action.status === 'reverted') return
@@ -170,12 +162,25 @@ export default function App() {
     setRevertPrompt(null)
   }, [revertPrompt])
 
-  const queueCompletedActions = useCallback((lines, startDelayMs = 0) => {
-    const list = Array.isArray(lines) ? lines : []
-    list.forEach((line, i) => {
-      delay(() => addCompletedAction(line), startDelayMs + i * 280)
-    })
-  }, [addCompletedAction, delay])
+  const recordAgentActionCompleted = useCallback((payload) => {
+    const label = String(payload?.text || '').trim()
+    if (!label) return
+    const id =
+      typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+        ? crypto.randomUUID()
+        : `action-${Date.now()}-${Math.random().toString(16).slice(2)}`
+    const agentName = String(payload?.agent || 'NEXUS').trim() || 'NEXUS'
+    setCompletedActions(prev => ([
+      {
+        id,
+        agent: agentName,
+        text: label,
+        time: getTimeLabel(),
+        status: 'done',
+      },
+      ...(Array.isArray(prev) ? prev : []),
+    ]))
+  }, [getTimeLabel])
 
   const upsertChatSessionAtTop = useCallback((sessionId, buildNext) => {
     setChatSessions(prev => {
@@ -385,7 +390,6 @@ export default function App() {
         const traceMessage = { type: 'trace', lines: traces, collapsing: false }
         setMessages(prev => [...prev, traceMessage])
         appendChatSessionMessage(sessionId, traceMessage, inferredTitle)
-        queueCompletedActions(traces)
       }
 
       const perLine = 280
@@ -444,7 +448,7 @@ export default function App() {
         }, 350)
       }, totalTrace)
     }, 400)
-  }, [appendChatSessionMessage, clearTimers, createChatSessionId, delay, getSessionTitle, getTimeLabel, guidedPrompt, inputValue.length, messages.length, openContextPanel, queueCompletedActions, transformChatSessionMessages, upsertChatSessionAtTop])
+  }, [appendChatSessionMessage, clearTimers, createChatSessionId, delay, getSessionTitle, getTimeLabel, guidedPrompt, inputValue.length, messages.length, openContextPanel, transformChatSessionMessages, upsertChatSessionAtTop])
 
   const sendMessage = useCallback((opts) => {
     if (guidedPrompt) return false
@@ -500,14 +504,6 @@ export default function App() {
       )))
     }
 
-    const simulated = [
-      'Interpreting request…',
-      'Querying connected sources…',
-      'Synthesizing results…',
-      'Drafting response…',
-    ]
-    queueCompletedActions(simulated, 200)
-
     delay(() => {
       const aiMessage = {
         type: 'ai',
@@ -527,7 +523,7 @@ export default function App() {
       setAgentResponding(false)
     }, 450)
     return true
-  }, [clearTimers, createChatSessionId, delay, getSessionTitle, getTimeLabel, guidedPrompt, inputValue, messages, queueCompletedActions, sessionName])
+  }, [clearTimers, createChatSessionId, delay, getSessionTitle, getTimeLabel, guidedPrompt, inputValue, messages, sessionName])
 
   const expandChart = useCallback((key) => {
     setChartOverlayKey(key)
@@ -543,7 +539,7 @@ export default function App() {
     setActiveChatSessionId(null)
     setSessionName('New conversation')
     setMessages([])
-    setCompletedActions([])
+    setCompletedActions([...PREDEFINED_COMPLETED_ACTIONS])
     setShowConversation(false)
     setInputValue('')
     guidedSessionRef.current = null
@@ -669,6 +665,7 @@ export default function App() {
           userName={workspaceName}
           userRole={userProfile?.role ?? ''}
           onExpandChart={expandChart}
+          onAgentActionCompleted={recordAgentActionCompleted}
         />
         <ContextPanel
           open={contextPanelOpen}

@@ -5,7 +5,15 @@ import Response4 from './responses/Response4'
 import { getResponseStep } from './responses/roleResponses'
 import AgentResponseLayout from './AgentResponseLayout'
 
-export default function AIResponse({ templateId, roleCategory, roleStepIndex, text, onExpandChart, onSuggestedPrompt }) {
+export default function AIResponse({
+  templateId,
+  roleCategory,
+  roleStepIndex,
+  text,
+  onExpandChart,
+  onSuggestedPrompt,
+  onAgentActionCompleted,
+}) {
   const renderRaw = () => {
     if (roleCategory && Number.isFinite(roleStepIndex)) {
       const RoleComponent = getResponseStep(roleCategory, roleStepIndex)
@@ -25,7 +33,10 @@ export default function AIResponse({ templateId, roleCategory, roleStepIndex, te
   return (
     <div className="ai-response">
       <div className="ai-label">Nexus &nbsp;·&nbsp; just now</div>
-      <AgentResponseLayout onSuggestedPrompt={onSuggestedPrompt}>
+      <AgentResponseLayout
+        onSuggestedPrompt={onSuggestedPrompt}
+        onAgentActionCompleted={onAgentActionCompleted}
+      >
         {renderRaw()}
       </AgentResponseLayout>
     </div>

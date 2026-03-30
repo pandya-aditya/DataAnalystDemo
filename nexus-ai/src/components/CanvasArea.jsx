@@ -18,6 +18,7 @@ export default function CanvasArea({
   userName,
   userRole = '',
   onExpandChart,
+  onAgentActionCompleted,
 }) {
   const startConversation = onStartConversation ?? onLoadScenario
   const convRef = useRef(null)
@@ -79,6 +80,7 @@ export default function CanvasArea({
                 text={msg.text}
                 onExpandChart={onExpandChart}
                 onSuggestedPrompt={(p) => setInputValue?.(p)}
+                onAgentActionCompleted={onAgentActionCompleted}
               />
             )
             return null
