@@ -79,8 +79,8 @@ export default function Sidebar({
                   item.kind === 'template' && item.conversationId != null && activeConversationId === item.conversationId
                     ? ' active'
                     : item.kind === 'session' && activeChatSessionId && activeChatSessionId === item.id
-                      ? ' active'
-                      : ''
+                    ? ' active'
+                    : ''
                 }`}
                 onClick={() => {
                   if (item.kind === 'template' && item.conversationId) onOpenConversation?.(item.conversationId)

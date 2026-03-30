@@ -3,6 +3,7 @@ import Topbar from './components/Topbar'
 import Sidebar from './components/Sidebar'
 import CanvasArea from './components/CanvasArea'
 import ContextPanel from './components/ContextPanel'
+import ConfirmModal from './components/ConfirmModal'
 import SettingsOverlay from './components/SettingsOverlay'
 import ChartOverlay from './components/ChartOverlay'
 import LoginPage from './components/Loginpage'
@@ -11,6 +12,8 @@ import { CONVERSATIONS } from './constants/data'
 import { buildRoleSession } from './constants/roleSessions'
 
 export default function App() {
+  
+  localStorage.clear();
   const THEME_STORAGE_KEY = 'nexus-theme'
   const CHAT_SESSIONS_STORAGE_KEY = 'nexus-chat-sessions-v1'
   const ACTIVE_CHAT_SESSION_STORAGE_KEY = 'nexus-active-chat-session-v1'
@@ -32,6 +35,7 @@ export default function App() {
   const [guidedPrompt, setGuidedPrompt]            = useState(null)
   const [showConversation, setShowConversation]    = useState(false)
   const [contextPanelOpen, setContextPanelOpen]   = useState(false)
+  const [revertPrompt, setRevertPrompt]           = useState(null)
   const [settingsOpen, setSettingsOpen]            = useState(false)
   const [chartOverlayOpen, setChartOverlayOpen]   = useState(false)
   const [chartOverlayKey, setChartOverlayKey]     = useState(null)
@@ -53,10 +57,8 @@ export default function App() {
   })
 
   const suppressContextPanelAutoOpenRef = useRef(false)
-  const activeConversationIdRef = useRef(activeConversationId)
   const activeChatSessionIdRef = useRef(activeChatSessionId)
 
-  useEffect(() => { activeConversationIdRef.current = activeConversationId }, [activeConversationId])
   useEffect(() => { activeChatSessionIdRef.current = activeChatSessionId }, [activeChatSessionId])
 
   useEffect(() => {
@@ -145,9 +147,27 @@ export default function App() {
     const trimmed = String(text || '').trim()
     if (!trimmed) return
     actionIdRef.current += 1
-    const next = { id: actionIdRef.current, text: trimmed, time: getTimeLabel() }
+    const next = { id: actionIdRef.current, text: trimmed, time: getTimeLabel(), status: 'done' }
     setCompletedActions(prev => [...prev, next])
   }, [getTimeLabel])
+
+  const requestRevertCompletedAction = useCallback((action) => {
+    if (!action || action.status === 'reverted') return
+    setRevertPrompt(action)
+  }, [])
+
+  const cancelRevertCompletedAction = useCallback(() => {
+    setRevertPrompt(null)
+  }, [])
+
+  const confirmRevertCompletedAction = useCallback(() => {
+    const targetId = revertPrompt?.id
+    if (!targetId) return setRevertPrompt(null)
+    setCompletedActions(prev => (Array.isArray(prev) ? prev : []).map(a => (
+      a?.id === targetId ? { ...a, status: 'reverted' } : a
+    )))
+    setRevertPrompt(null)
+  }, [revertPrompt])
 
   const queueCompletedActions = useCallback((lines, startDelayMs = 0) => {
     const list = Array.isArray(lines) ? lines : []
@@ -156,14 +176,46 @@ export default function App() {
     })
   }, [addCompletedAction, delay])
 
+  const upsertChatSessionAtTop = useCallback((sessionId, buildNext) => {
+    setChatSessions(prev => {
+      const list = Array.isArray(prev) ? prev : []
+      const idx = list.findIndex(s => s?.id === sessionId)
+      const existing = idx >= 0 ? list[idx] : null
+      const next = buildNext(existing)
+      if (!next) return list
+      const remaining = idx >= 0 ? list.filter((_, i) => i !== idx) : list
+      return [next, ...remaining]
+    })
+  }, [])
+
   const handleInputValueChange = useCallback((nextRawValue) => {
+    const sessionId = activeChatSessionIdRef.current
     if (!guidedPrompt) {
       setInputValue(nextRawValue)
       return
     }
     const nextLen = Math.min(nextRawValue.length, guidedPrompt.length)
-    setInputValue(guidedPrompt.slice(0, nextLen))
-  }, [guidedPrompt])
+    const nextValue = guidedPrompt.slice(0, nextLen)
+    setInputValue(nextValue)
+
+    if (sessionId) {
+      upsertChatSessionAtTop(sessionId, (existing) => {
+        if (!existing) return null
+        const prevGuided = existing.guided && typeof existing.guided === 'object' ? existing.guided : {}
+        return {
+          ...existing,
+          guided: {
+            ...prevGuided,
+            active: true,
+            stepIndex: guidedStepIndexRef.current,
+            prompt: guidedPrompt,
+            inputValue: nextValue,
+          },
+          updatedAt: Date.now(),
+        }
+      })
+    }
+  }, [guidedPrompt, upsertChatSessionAtTop])
 
   const primeRoleSession = useCallback(() => {
     if (!userProfile?.role) {
@@ -180,13 +232,36 @@ export default function App() {
     setGuidedPrompt(session?.steps?.[0]?.prompt || null)
   }, [userProfile])
 
+  const appendChatSessionMessage = useCallback((sessionId, message, titleIfNew) => {
+    const now = Date.now()
+    upsertChatSessionAtTop(sessionId, (existing) => {
+      const base = existing ?? { id: sessionId, title: titleIfNew || 'Conversation', messages: [], createdAt: now, updatedAt: now }
+      const prior = Array.isArray(base.messages) ? base.messages : []
+      return {
+        ...base,
+        title: base.title || titleIfNew || 'Conversation',
+        messages: [...prior, message],
+        updatedAt: now,
+      }
+    })
+  }, [upsertChatSessionAtTop])
+
+  const transformChatSessionMessages = useCallback((sessionId, transform) => {
+    const now = Date.now()
+    upsertChatSessionAtTop(sessionId, (existing) => {
+      if (!existing) return null
+      const prior = Array.isArray(existing.messages) ? existing.messages : []
+      return { ...existing, messages: transform(prior), updatedAt: now }
+    })
+  }, [upsertChatSessionAtTop])
+
   const startConversation = useCallback((id) => {
     clearTimers()
     agentRespondingRef.current = false
     setAgentResponding(false)
+    const c = CONVERSATIONS[id]
     setActiveConversationId(id)
     setActiveChatSessionId(null)
-    const c = CONVERSATIONS[id]
     setSessionName(c?.name || 'Conversation')
     setMessages([
       { type: 'user', text: c?.prompt || '', time: getTimeLabel() },
@@ -218,12 +293,23 @@ export default function App() {
     suppressContextPanelAutoOpenRef.current = false
     setContextPanelOpen(false)
 
-    guidedSubmittedRef.current = false
-    guidedSessionRef.current = null
-    guidedStepIndexRef.current = 0
-    setGuidedPrompt(null)
-    setInputValue('')
-  }, [chatSessions, clearTimers])
+    const guided = session?.guided
+    if (guided && guided.active && userProfile?.role) {
+      guidedSubmittedRef.current = false
+      guidedSessionRef.current = buildRoleSession(userProfile)
+      guidedStepIndexRef.current = Number.isFinite(guided.stepIndex) ? guided.stepIndex : 0
+      const prompt = typeof guided.prompt === 'string' && guided.prompt.length > 0 ? guided.prompt : null
+      setGuidedPrompt(prompt)
+      const value = typeof guided.inputValue === 'string' ? guided.inputValue : ''
+      setInputValue(prompt ? value.slice(0, prompt.length) : value)
+    } else {
+      guidedSubmittedRef.current = false
+      guidedSessionRef.current = null
+      guidedStepIndexRef.current = 0
+      setGuidedPrompt(null)
+      setInputValue('')
+    }
+  }, [chatSessions, clearTimers, userProfile])
 
   useEffect(() => {
     if (!guidedPrompt) return
@@ -234,25 +320,70 @@ export default function App() {
     const session = guidedSessionRef.current
     const stepIndex = guidedStepIndexRef.current
     const step = session?.steps?.[stepIndex]
-    setGuidedPrompt(null)
 
     if (!step) return
 
     clearTimers()
-    setActiveConversationId(null)
     suppressContextPanelAutoOpenRef.current = false
     setShowConversation(true)
 
-    if (messages.length === 0) setSessionName(session?.title || getSessionTitle(step.prompt))
+    const inferredTitle = session?.title || getSessionTitle(step.prompt)
+    let sessionId = activeChatSessionIdRef.current
+    const nextIndex = stepIndex + 1
+    const nextStep = session?.steps?.[nextIndex]
+    const nextPrompt = nextStep?.prompt || null
+
+    if (!sessionId) {
+      sessionId = createChatSessionId()
+      setActiveConversationId(null)
+      setActiveChatSessionId(sessionId)
+      setSessionName(inferredTitle)
+      upsertChatSessionAtTop(sessionId, () => ({
+        id: sessionId,
+        title: inferredTitle,
+        messages: [],
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        guidedCategory: session?.category || null,
+        guided: {
+          active: true,
+          stepIndex: nextPrompt ? nextIndex : stepIndex,
+          prompt: nextPrompt || guidedPrompt,
+          inputValue: '',
+        },
+      }))
+    } else if (messages.length === 0) {
+      setSessionName(inferredTitle)
+    }
+
+    upsertChatSessionAtTop(sessionId, (existing) => {
+      if (!existing) return null
+      return {
+        ...existing,
+        title: existing.title || inferredTitle,
+        guided: {
+          active: true,
+          stepIndex: nextPrompt ? nextIndex : stepIndex,
+          prompt: nextPrompt || guidedPrompt,
+          inputValue: '',
+        },
+        updatedAt: Date.now(),
+      }
+    })
+
     agentRespondingRef.current = true
     setAgentResponding(true)
     setInputValue('')
-    setMessages(prev => [...prev, { type: 'user', text: step.prompt, time: getTimeLabel() }])
+    const userMessage = { type: 'user', text: step.prompt, time: getTimeLabel() }
+    setMessages(prev => [...prev, userMessage])
+    appendChatSessionMessage(sessionId, userMessage, inferredTitle)
 
     delay(() => {
       const traces = Array.isArray(step.traces) ? step.traces : []
       if (traces.length > 0) {
-        setMessages(prev => [...prev, { type: 'trace', lines: traces, collapsing: false }])
+        const traceMessage = { type: 'trace', lines: traces, collapsing: false }
+        setMessages(prev => [...prev, traceMessage])
+        appendChatSessionMessage(sessionId, traceMessage, inferredTitle)
         queueCompletedActions(traces)
       }
 
@@ -260,36 +391,59 @@ export default function App() {
       const totalTrace = traces.length * perLine + 600
       delay(() => {
         setMessages(prev => prev.map(m => m.type === 'trace' ? { ...m, collapsing: true } : m))
+        transformChatSessionMessages(sessionId, prev => prev.map(m => m.type === 'trace' ? { ...m, collapsing: true } : m))
         delay(() => {
-          setMessages(prev => [
+          const aiMessage = session?.category
+            ? { type: 'ai', roleCategory: session.category, roleStepIndex: stepIndex, text: step.ai?.text }
+            : (
+              step.ai?.templateId != null
+                ? { type: 'ai', templateId: step.ai.templateId }
+                : { type: 'ai', text: step.ai?.text || "Got it — I’m pulling the latest across your connected sources and will summarize what matters." }
+            )
+
+          setMessages(prev => ([
             ...prev.filter(m => m.type !== 'trace'),
-            session?.category
-              ? { type: 'ai', roleCategory: session.category, roleStepIndex: stepIndex, text: step.ai?.text }
-              : (
-                step.ai?.templateId != null
-                  ? { type: 'ai', templateId: step.ai.templateId }
-                  : { type: 'ai', text: step.ai?.text || "Got it — I’m pulling the latest across your connected sources and will summarize what matters." }
-              ),
-          ])
+            aiMessage,
+          ]))
+          transformChatSessionMessages(sessionId, prev => ([
+            ...prev.filter(m => m.type !== 'trace'),
+            aiMessage,
+          ]))
           agentRespondingRef.current = false
           setAgentResponding(false)
+
+          guidedSubmittedRef.current = false
+          guidedStepIndexRef.current = nextIndex
+          if (nextPrompt) {
+            setGuidedPrompt(nextPrompt)
+            upsertChatSessionAtTop(sessionId, (existing) => {
+              if (!existing) return null
+              return {
+                ...existing,
+                guided: { active: true, stepIndex: nextIndex, prompt: nextPrompt, inputValue: '' },
+                updatedAt: Date.now(),
+              }
+            })
+          } else {
+            guidedSessionRef.current = null
+            setGuidedPrompt(null)
+            upsertChatSessionAtTop(sessionId, (existing) => {
+              if (!existing) return null
+              return {
+                ...existing,
+                guided: { active: false, stepIndex: nextIndex, prompt: null, inputValue: '' },
+                updatedAt: Date.now(),
+              }
+            })
+          }
+
           delay(() => {
             if (!suppressContextPanelAutoOpenRef.current) openContextPanel()
           }, 800)
-
-          delay(() => {
-            const nextIndex = stepIndex + 1
-            const nextStep = session?.steps?.[nextIndex]
-            guidedStepIndexRef.current = nextIndex
-            guidedSubmittedRef.current = false
-            if (nextStep?.prompt) setGuidedPrompt(nextStep.prompt)
-            else guidedSessionRef.current = null
-            setInputValue('')
-          }, 900)
         }, 350)
       }, totalTrace)
     }, 400)
-  }, [clearTimers, delay, getSessionTitle, getTimeLabel, guidedPrompt, inputValue.length, messages.length, openContextPanel, queueCompletedActions])
+  }, [appendChatSessionMessage, clearTimers, createChatSessionId, delay, getSessionTitle, getTimeLabel, guidedPrompt, inputValue.length, messages.length, openContextPanel, queueCompletedActions, transformChatSessionMessages, upsertChatSessionAtTop])
 
   const sendMessage = useCallback(() => {
     if (guidedPrompt) return
@@ -355,7 +509,7 @@ export default function App() {
           : s
       )))
 
-      if (activeChatSessionIdRef.current === sessionId && activeConversationIdRef.current == null) {
+      if (activeChatSessionIdRef.current === sessionId) {
         setMessages(prev => [...prev, aiMessage])
       }
       agentRespondingRef.current = false
@@ -411,6 +565,7 @@ export default function App() {
   useEffect(() => {
     const handler = (e) => {
       if (e.key === 'Escape') {
+        cancelRevertCompletedAction()
         closeContextPanel()
         setSettingsOpen(false)
         setChartOverlayOpen(false)
@@ -418,7 +573,7 @@ export default function App() {
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [resetToEmpty, closeContextPanel])
+  }, [cancelRevertCompletedAction, closeContextPanel])
 
   // ── Theme management ──────────────────────────────────────────
   useEffect(() => {
@@ -506,8 +661,23 @@ export default function App() {
           open={contextPanelOpen}
           actions={completedActions}
           onClose={closeContextPanel}
+          onRequestRevert={requestRevertCompletedAction}
         />
       </div>
+
+      <ConfirmModal
+        open={Boolean(revertPrompt)}
+        title="Revert completed action?"
+        subtitle={revertPrompt?.text}
+        note="This will mark the action as reverted in your activity."
+        confirmLabel="Revert"
+        cancelLabel="Cancel"
+        confirmVariant="danger"
+        onCancel={cancelRevertCompletedAction}
+        onConfirm={confirmRevertCompletedAction}
+        ariaLabel="Confirm revert completed action"
+      />
+
       <SettingsOverlay
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}

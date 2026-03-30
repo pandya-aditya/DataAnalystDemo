@@ -1,4 +1,4 @@
-export default function ContextPanel({ open, actions = [], onClose }) {
+export default function ContextPanel({ open, actions = [], onClose, onRequestRevert }) {
   return (
     <aside id="context-panel" className={`context-panel${open ? ' open' : ''}`}>
       <div className="context-header">
@@ -20,7 +20,25 @@ export default function ContextPanel({ open, actions = [], onClose }) {
                   <span className="action-name">{action.text}</span>
                   {action.time ? <span className="action-time">{action.time}</span> : null}
                 </div>
-                <span className="action-status">Done</span>
+                <div className="action-right">
+                  <span className={`action-status${action.status === 'reverted' ? ' reverted' : ''}`}>
+                    {action.status === 'reverted' ? 'Reverted' : 'Done'}
+                  </span>
+                  {action.status !== 'reverted' ? (
+                    <button
+                      type="button"
+                      className="action-revert-btn"
+                      onClick={() => onRequestRevert?.(action)}
+                      title="Revert"
+                      aria-label={`Revert: ${action.text}`}
+                    >
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                        <path d="M6 5H3V2"/>
+                        <path d="M3 5c1.6-2 3.8-3 6.4-2.6C12.1 3 14 5.1 14 7.7c0 2.8-2.2 5-5 5H6.4"/>
+                      </svg>
+                    </button>
+                  ) : null}
+                </div>
               </div>
             ))
           ) : (

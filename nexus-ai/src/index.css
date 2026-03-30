@@ -1068,6 +1068,30 @@ input, textarea { font-family: inherit; }
   background: var(--green-positive);
   display: block;
 }
+.action-status.reverted { color: var(--red-alert); }
+.action-status.reverted::before { background: var(--red-alert); }
+
+.action-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.action-revert-btn {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  color: var(--text-muted);
+  opacity: 0;
+  transition: opacity 140ms, color 150ms, background 150ms;
+}
+.action-item:hover .action-revert-btn,
+.action-item:focus-within .action-revert-btn { opacity: 1; }
+.action-revert-btn:hover { color: var(--text-primary); background: var(--bg-overlay); }
+.action-revert-btn svg { width: 14px; height: 14px; }
 
 /* ============================================================
    SETTINGS OVERLAY
@@ -1403,6 +1427,12 @@ input, textarea { font-family: inherit; }
   color: var(--bg-base);
 }
 .perm-scope-btn.primary:hover { filter: brightness(1.05); }
+.perm-scope-btn.danger {
+  background: var(--red-alert);
+  border-color: var(--red-alert);
+  color: var(--bg-base);
+}
+.perm-scope-btn.danger:hover { filter: brightness(1.05); }
 
 /* ============================================================
    ANIMATIONS UTILITY
@@ -1606,6 +1636,207 @@ input, textarea { font-family: inherit; }
   0%   { transform: scale(0.98); opacity: 0.7; }
   50%  { transform: scale(1.03); opacity: 1; }
   100% { transform: scale(0.98); opacity: 0.7; }
+}
+
+.kpi-section-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.kpi-swap-open-btn {
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  font-size: 11px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: background 150ms, border-color 150ms, transform 150ms;
+  white-space: nowrap;
+}
+.kpi-swap-open-btn:hover {
+  background: var(--bg-overlay);
+  border-color: var(--border-medium);
+  transform: translateY(-1px);
+}
+.kpi-swap-open-btn:active { transform: translateY(0); }
+.kpi-swap-open-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.kpi-swap-inline {
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  background: var(--bg-base);
+  padding: 12px;
+  margin-bottom: 10px;
+}
+.kpi-swap-subtitle {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+.kpi-swap-grid {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+.kpi-swap-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  margin-bottom: 6px;
+}
+.kpi-dd {
+  position: relative;
+}
+.kpi-dd-trigger {
+  width: 100%;
+  min-height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  transition: background 150ms, border-color 150ms;
+}
+.kpi-dd-trigger:hover {
+  background: var(--bg-elevated);
+  border-color: var(--border-medium);
+}
+.kpi-dd-trigger:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.kpi-dd-trigger-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.kpi-dd-chevron {
+  color: var(--text-muted);
+  transform: translateY(-1px);
+  transition: transform 160ms var(--ease-out);
+}
+.kpi-dd-chevron.open {
+  transform: translateY(-1px) rotate(180deg);
+}
+.kpi-dd-menu {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 30;
+  border-radius: 12px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-overlay);
+  overflow: auto;
+  max-height: 220px;
+  padding: 6px;
+}
+.kpi-dd-option {
+  width: 100%;
+  text-align: left;
+  height: 34px;
+  border-radius: 10px;
+  padding: 0 10px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--text-primary);
+  background: transparent;
+  border: 1px solid transparent;
+  transition: background 120ms, border-color 120ms;
+}
+.kpi-dd-option:hover {
+  background: var(--bg-elevated);
+  border-color: var(--border-subtle);
+}
+.kpi-dd-option.selected {
+  background: rgba(90,158,232,0.12);
+  border-color: rgba(90,158,232,0.22);
+}
+
+.kpi-swap-agent {
+  margin-top: 10px;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.kpi-swap-agent-pill {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(232,197,71,0.18);
+  color: var(--accent);
+  border: 1px solid rgba(232,197,71,0.35);
+  white-space: nowrap;
+}
+.kpi-swap-agent-name {
+  font-size: 12px;
+  color: var(--text-primary);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kpi-strip.kpi-strip-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+.kpi-strip.kpi-strip-1 {
+  grid-template-columns: 1fr;
+}
+
+.kpi-label.kpi-label-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.kpi-label.kpi-label-row .kpi-status {
+  margin-left: auto;
+  margin-top: 0;
+  float: none;
+}
+.kpi-agent-pill {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(90,158,232,0.14);
+  color: color-mix(in srgb, var(--chart-3) 65%, var(--text-primary));
+  border: 1px solid rgba(90,158,232,0.28);
+}
+.kpi-card.kpi-card-agent {
+  background: linear-gradient(180deg, rgba(90,158,232,0.08), rgba(232,197,71,0.06));
+  border-left: 4px solid rgba(232,197,71,0.7);
+}
+.kpi-agent-reason {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
 }
 
 .kpi-overview-backdrop {
