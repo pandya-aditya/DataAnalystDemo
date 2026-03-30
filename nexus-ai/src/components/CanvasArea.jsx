@@ -16,6 +16,7 @@ export default function CanvasArea({
   onSend,
   inputDisabled = false,
   userName,
+  userRole = '',
   onExpandChart,
 }) {
   const startConversation = onStartConversation ?? onLoadScenario
@@ -93,7 +94,7 @@ export default function CanvasArea({
       ) : (
         <EmptyState onStartConversation={startConversation} userName={userName} />
       )}
-      <KpiOverviewWidget />
+      <KpiOverviewWidget userRole={userRole} />
       <InputBar
         value={inputValue}
         onChange={setInputValue}

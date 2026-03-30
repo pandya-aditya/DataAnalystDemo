@@ -433,7 +433,6 @@ input, textarea { font-family: inherit; }
   flex-direction: column;
   gap: 32px;
 }
-/* Scroll headroom while the latest message is user-only (response still loading). */
 .conversation-response-reserve {
   flex-shrink: 0;
   min-height: 0;
@@ -563,6 +562,38 @@ input, textarea { font-family: inherit; }
   padding: 6px 0;
 }
 .agent-section .response-section-title { margin-top: 0; }
+
+.agent-action-feedback {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(82, 201, 122, 0.35);
+  background: rgba(82, 201, 122, 0.08);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  animation: fadeIn 220ms var(--ease-out) both;
+}
+.agent-action-feedback-icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--green-positive);
+}
+.agent-action-feedback-text strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.agent-action-feedback-label {
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--accent);
+  margin-right: 6px;
+}
+
 .ai-text {
   font-family: 'Lora', serif;
   font-size: 14px;
@@ -1675,6 +1706,7 @@ input, textarea { font-family: inherit; }
   background: var(--bg-base);
   padding: 12px;
   margin-bottom: 10px;
+  animation: fadeUp 180ms var(--ease-out) both;
 }
 .kpi-swap-subtitle {
   font-size: 12px;
@@ -1923,6 +1955,129 @@ input, textarea { font-family: inherit; }
   font-size: 11px;
   color: var(--text-muted);
   margin-top: 4px;
+}
+
+/* ============================================================
+   KPI PROMPT BAR
+   ============================================================ */
+
+/* Animated slide-down entrance when the bar opens */
+.kpi-prompt-bar {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  animation: fadeUp 180ms var(--ease-out) both;
+}
+
+.kpi-prompt-input-wrap {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border-medium);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--bg-base);
+  transition: border-color 150ms, box-shadow 150ms;
+}
+
+.kpi-prompt-input-wrap:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(232, 197, 71, 0.14);
+}
+
+.kpi-prompt-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 13px;
+  padding: 10px 14px;
+  background: transparent;
+  color: var(--text-primary);
+  line-height: 1.5;
+  min-height: 40px;
+}
+
+.kpi-prompt-input::placeholder {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Readonly / typing state: subtle tint so users can see it's working */
+.kpi-prompt-input[readonly] {
+  color: var(--text-secondary);
+  background: var(--bg-elevated);
+  cursor: default;
+}
+
+.kpi-prompt-send {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  margin: 1px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--bg-base);
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: filter 150ms, transform 120ms;
+}
+
+.kpi-prompt-send:hover:not(:disabled) {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.kpi-prompt-send:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.kpi-prompt-send:disabled {
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  filter: none;
+}
+
+/* Status hint line below the input */
+.kpi-prompt-hint {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  padding-left: 2px;
+  min-height: 16px;
+  animation: fadeIn 200ms var(--ease-out) both;
+}
+
+/* ============================================================
+   DEPARTMENT KPI CARDS
+   ============================================================ */
+
+/* The strip reuses .kpi-strip.kpi-strip-3 — only the card
+   variant needs extra rules. */
+.kpi-card-dept {
+  background: var(--bg-surface);
+  border-top-width: 3px;
+  border-top-style: solid;
+  /* border-top-color is set inline per department */
+}
+
+.kpi-dept-label {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 2px;
+  /* color is set inline per department accent */
+}
+
+.kpi-dept-metric {
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-bottom: 8px;
 }
 
 /* ============================================================

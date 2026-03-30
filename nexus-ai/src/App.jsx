@@ -655,6 +655,7 @@ export default function App() {
           onSend={sendMessage}
           inputDisabled={agentResponding}
           userName={workspaceName}
+          userRole={userProfile?.role ?? ''}
           onExpandChart={expandChart}
         />
         <ContextPanel

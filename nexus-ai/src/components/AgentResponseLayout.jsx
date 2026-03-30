@@ -1,4 +1,4 @@
-import { Children, Fragment, cloneElement, isValidElement } from 'react'
+import { Children, Fragment, cloneElement, isValidElement, useCallback, useEffect, useState } from 'react'
 import { useSourceAccess } from './SourceAccessContext'
 
 const INTERNAL_ACTION_SOURCES = new Set(['Pipelines'])
@@ -183,6 +183,41 @@ function findAllTextByClass(node, classToken) {
   return out
 }
 
+function attachActionButtonHandlers(node, { onAction }) {
+  if (!isValidElement(node)) return node
+  const cn = node.props?.className || ''
+  const classStr = typeof cn === 'string' ? cn : ''
+
+  const children = flattenChildren(node.props?.children)
+  const nextChildren = children.map(c => attachActionButtonHandlers(c, { onAction }))
+
+  const isActionBtn = node.type === 'button' && (
+    classStr.includes('action-btn-primary') || classStr.includes('action-btn-ghost')
+  )
+
+  if (isActionBtn) {
+    const label = collectText(node.props?.children).trim() || 'Action'
+    const prevOnClick = node.props?.onClick
+    return cloneElement(
+      node,
+      {
+        ...node.props,
+        type: node.props?.type ?? 'button',
+        onClick: (e) => {
+          prevOnClick?.(e)
+          onAction(label)
+        },
+      },
+      ...nextChildren,
+    )
+  }
+
+  if (nextChildren.some((c, i) => c !== children[i])) {
+    return cloneElement(node, { ...node.props }, ...nextChildren)
+  }
+  return node
+}
+
 function EmptyState({ label }) {
   return (
     <div className="agent-empty" aria-label={label}>
@@ -218,19 +253,41 @@ function PromptPills({ prompts, onSuggestedPrompt }) {
   )
 }
 
-function ActionCards({ cards }) {
+function ActionCards({ cards, sectionPrefix, doneKeys, onMarkAction }) {
   if (!Array.isArray(cards) || cards.length === 0) return <EmptyState label="No actions" />
   return (
     <div className="action-cards">
-      {cards.map((c, idx) => (
-        <Fragment key={idx}>{c}</Fragment>
-      ))}
+      {cards.map((c, idx) => {
+        const key = `${sectionPrefix}-${idx}`
+        const resolved =
+          sectionPrefix === 'needs' && doneKeys.has(key)
+            ? reclassActionCard(c, 'done')
+            : c
+        const withHandlers = attachActionButtonHandlers(resolved, {
+          onAction: (label) => onMarkAction(key, label),
+        })
+        return <Fragment key={key}>{withHandlers}</Fragment>
+      })}
     </div>
   )
 }
 
 export default function AgentResponseLayout({ children, onSuggestedPrompt }) {
   const { canWrite } = useSourceAccess()
+  const [doneActionKeys, setDoneActionKeys] = useState(() => new Set())
+  const [agentFeedback, setAgentFeedback] = useState(null)
+
+  useEffect(() => {
+    if (!agentFeedback) return undefined
+    const t = window.setTimeout(() => setAgentFeedback(null), 4200)
+    return () => window.clearTimeout(t)
+  }, [agentFeedback])
+
+  const onMarkAction = useCallback((cardKey, label) => {
+    setDoneActionKeys(prev => new Set(prev).add(cardKey))
+    setAgentFeedback({ text: label })
+  }, [])
+
   const nodes = flattenChildren(children)
 
   const analysis = nodes.filter(n => classHas(n, 'ai-text') || classHas(n, 'insight-callout'))
@@ -273,6 +330,25 @@ export default function AgentResponseLayout({ children, onSuggestedPrompt }) {
 
   return (
     <div className="agent-response-sections">
+      {agentFeedback ? (
+        <div className="agent-action-feedback" role="status" aria-live="polite">
+          <span className="agent-action-feedback-icon" aria-hidden>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path
+                d="M11.5 3.5L5.2 9.8 2.5 7"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
+          <span className="agent-action-feedback-text">
+            <span className="agent-action-feedback-label">Nexus</span>
+            ran <strong>{agentFeedback.text}</strong>
+          </span>
+        </div>
+      ) : null}
       {analysisBlock?.length ? <Section>{analysisBlock}</Section> : null}
       {data.length ? <Section>{data}</Section> : null}
       {prompts.length ? (
@@ -282,12 +358,22 @@ export default function AgentResponseLayout({ children, onSuggestedPrompt }) {
       ) : null}
       {taken.length ? (
         <Section>
-          <ActionCards cards={taken} />
+          <ActionCards
+            cards={taken}
+            sectionPrefix="taken"
+            doneKeys={doneActionKeys}
+            onMarkAction={onMarkAction}
+          />
         </Section>
       ) : null}
       {needsPermission.length ? (
         <Section>
-          <ActionCards cards={needsPermission} />
+          <ActionCards
+            cards={needsPermission}
+            sectionPrefix="needs"
+            doneKeys={doneActionKeys}
+            onMarkAction={onMarkAction}
+          />
         </Section>
       ) : null}
     </div>
