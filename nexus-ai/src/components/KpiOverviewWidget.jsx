@@ -579,7 +579,7 @@ export default function KpiOverviewWidget({ userRole = '' }) {
             {/* Section row: label + Swap button */}
             <div className="kpi-section-row" style={{ marginTop: 14 }}>
               <div className="response-section-title" style={{ marginTop: 0, marginBottom: 0 }}>
-                Tracked KPIs
+                PERSONAL KPIs
               </div>
               <button
                 type="button"

@@ -44,6 +44,7 @@ export default function App() {
     const stored = window.localStorage.getItem(THEME_STORAGE_KEY)
     return stored === 'dark' || stored === 'light' || stored === 'system' ? stored : 'light'
   })
+  const [sourceAccess, setSourceAccess]           = useState({})
 
   const [chatSessions, setChatSessions] = useState(() => {
     if (typeof window === 'undefined') return []
@@ -445,11 +446,21 @@ export default function App() {
     }, 400)
   }, [appendChatSessionMessage, clearTimers, createChatSessionId, delay, getSessionTitle, getTimeLabel, guidedPrompt, inputValue.length, messages.length, openContextPanel, queueCompletedActions, transformChatSessionMessages, upsertChatSessionAtTop])
 
-  const sendMessage = useCallback(() => {
-    if (guidedPrompt) return
+  const sendMessage = useCallback((opts) => {
+    if (guidedPrompt) return false
     const trimmed = inputValue.trim()
-    if (!trimmed) return
-    if (agentRespondingRef.current) return
+    const attachmentNames = (opts?.attachmentNames ?? []).filter(Boolean)
+    if (!trimmed && attachmentNames.length === 0) return false
+    if (agentRespondingRef.current) return false
+
+    const fileLine =
+      attachmentNames.length === 0
+        ? ''
+        : attachmentNames.length === 1
+          ? `Attachment: ${attachmentNames[0]}`
+          : `Attachments: ${attachmentNames.join(', ')}`
+    const displayText =
+      trimmed && fileLine ? `${trimmed}\n\n${fileLine}` : trimmed || fileLine
 
     clearTimers()
     agentRespondingRef.current = true
@@ -460,7 +471,7 @@ export default function App() {
     setInputValue('')
 
     const now = Date.now()
-    const userMessage = { type: 'user', text: trimmed, time: getTimeLabel() }
+    const userMessage = { type: 'user', text: displayText, time: getTimeLabel() }
 
     let sessionId = activeChatSessionIdRef.current
 
@@ -468,7 +479,7 @@ export default function App() {
       sessionId = createChatSessionId()
       const inferredTitle = (messages.length > 0 && sessionName && sessionName !== 'New conversation')
         ? sessionName
-        : getSessionTitle(trimmed)
+        : getSessionTitle(trimmed || attachmentNames[0] || displayText)
       const seeded = [...(Array.isArray(messages) ? messages : []), userMessage]
 
       setActiveConversationId(null)
@@ -515,6 +526,7 @@ export default function App() {
       agentRespondingRef.current = false
       setAgentResponding(false)
     }, 450)
+    return true
   }, [clearTimers, createChatSessionId, delay, getSessionTitle, getTimeLabel, guidedPrompt, inputValue, messages, queueCompletedActions, sessionName])
 
   const expandChart = useCallback((key) => {
@@ -684,6 +696,8 @@ export default function App() {
         onClose={() => setSettingsOpen(false)}
         themeMode={themeMode}
         onThemeModeChange={setThemeMode}
+        sourceAccess={sourceAccess}
+        onSourceAccessChange={setSourceAccess}
       />
       <ChartOverlay
         open={chartOverlayOpen}

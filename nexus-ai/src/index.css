@@ -971,10 +971,88 @@ input, textarea { font-family: inherit; }
   background: var(--bg-base);
   border-top: 1px solid var(--border-subtle);
 }
+.input-file-hidden {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+.input-attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.input-attachment-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  padding: 4px 6px 4px 10px;
+  font-size: 12px;
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+}
+.input-attachment-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 220px;
+}
+.input-attachment-remove {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--text-muted);
+  border-radius: 3px;
+  transition: color 150ms, background 150ms;
+}
+.input-attachment-remove:hover:not(:disabled) {
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+}
+.input-attachment-remove:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
 .input-wrap {
   display: flex;
   gap: 10px;
   align-items: flex-end;
+}
+.input-attach-btn {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  color: var(--text-muted);
+  transition: border-color 150ms, color 150ms, background 150ms;
+}
+.input-attach-btn:hover:not(:disabled) {
+  border-color: var(--border-medium);
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+}
+.input-attach-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.input-attach-btn svg {
+  width: 20px;
+  height: 20px;
 }
 .input-field {
   flex: 1;
