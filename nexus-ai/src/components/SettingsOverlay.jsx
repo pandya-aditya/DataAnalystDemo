@@ -1,32 +1,84 @@
 import { useMemo, useRef, useState } from 'react'
 import { INTEGRATIONS } from '../constants/data'
+import { WRITE_SCOPES } from '../constants/writeScopes'
 
 const CATEGORIES = ['all', 'marketing', 'finance', 'logistics', 'support']
 
-const PERMISSIONS = [
-  { label: 'Weekly Email Summaries',      desc: 'Agent sends a performance digest every Monday at 9 AM',                      defaultOn: true  },
-  { label: 'Slack Low Stock Alerts',      desc: 'Flag inventory below reorder point in #ops-alerts',                          defaultOn: true  },
-  { label: 'Draft Shopify Discount Codes',desc: 'Agent can generate codes but requires approval before publishing',            defaultOn: true  },
-  { label: 'Auto-pause Underperforming Ads', desc: 'Pause ad sets with CPR > threshold without manual review',                 defaultOn: false },
-  { label: 'Gorgias Macro Deployment',    desc: 'Allow agent to deploy support macros automatically',                          defaultOn: false },
-]
-
-function Toggle({ defaultOn, title }) {
-  const [on, setOn] = useState(defaultOn)
+function AccessControl({ value, onChange, onRequestWrite }) {
   return (
-    <button
-      className={`toggle${on ? ' on' : ''}`}
-      onClick={() => setOn(v => !v)}
-      title={title}
-      aria-label={title}
-    />
+    <div className="access-control" role="group" aria-label="Access level">
+      <button
+        className={`access-option${value === 'read' ? ' active' : ''}`}
+        onClick={() => onChange?.('read')}
+        title="Read access"
+        aria-label="Read access"
+      >
+        Read
+      </button>
+      <button
+        className={`access-option${value === 'write' ? ' active' : ''}`}
+        onClick={() => (value === 'write' ? onChange?.('write') : onRequestWrite?.())}
+        title="Read and write access"
+        aria-label="Read and write access"
+      >
+        Read &amp; write
+      </button>
+    </div>
   )
 }
 
-export default function SettingsOverlay({ open, onClose, themeMode, onThemeModeChange }) {
+function WriteScopeModal({ open, sourceName, scopes, onCancel, onConfirm }) {
+  if (!open) return null
+  const list = Array.isArray(scopes) && scopes.length > 0 ? scopes : [
+    'Perform changes on your behalf',
+    'Create, update, or delete objects where supported',
+    'Send notifications and messages where supported',
+  ]
+
+  return (
+    <div className="perm-scope-backdrop" onClick={onCancel} role="dialog" aria-modal="true" aria-label="Grant write access">
+      <div className="perm-scope-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="perm-scope-header">
+          <div>
+            <div className="perm-scope-title">Grant write access</div>
+            <div className="perm-scope-subtitle">{sourceName}</div>
+          </div>
+          <button className="perm-scope-close" onClick={onCancel} title="Close" aria-label="Close">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M1 1l12 12M13 1L1 13"/>
+            </svg>
+          </button>
+        </div>
+
+        <div className="perm-scope-body">
+          <div className="perm-scope-note">
+            With write access enabled, Nexus can execute external actions directly in {sourceName}. You can revert access at any time.
+          </div>
+
+          <div className="perm-scope-list-title">This includes:</div>
+          <ul className="perm-scope-list">
+            {list.map((s) => (
+              <li key={s}>{s}</li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="perm-scope-actions">
+          <button className="perm-scope-btn ghost" onClick={onCancel} title="Cancel" aria-label="Cancel">Cancel</button>
+          <button className="perm-scope-btn primary" onClick={onConfirm} title="Grant write access" aria-label="Grant write access">
+            Grant write access
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function SettingsOverlay({ open, onClose, themeMode, onThemeModeChange, sourceAccess, onSourceAccessChange }) {
   const [activeTab, setActiveTab]   = useState('sources')
   const [activeCat, setActiveCat]   = useState('all')
   const fileInputRef = useRef(null)
+  const [writeRequest, setWriteRequest] = useState(null)
 
   const [uploadedFiles, setUploadedFiles] = useState([
     { name: 'customer_export_nov.csv', date: 'Mar 24, 2026', status: 'Success' },
@@ -41,6 +93,16 @@ export default function SettingsOverlay({ open, onClose, themeMode, onThemeModeC
   const filtered = activeCat === 'all'
     ? INTEGRATIONS
     : INTEGRATIONS.filter(i => i.cat === activeCat)
+
+  const connectedSources = useMemo(() => (Array.isArray(INTEGRATIONS) ? INTEGRATIONS : []).filter(i => i?.connected), [])
+
+  const getAccess = (name) => (sourceAccess && typeof sourceAccess === 'object' ? sourceAccess[name] : null) || 'read'
+
+  const setAccess = (name, level) => {
+    if (!name) return
+    const next = level === 'write' ? 'write' : 'read'
+    onSourceAccessChange?.((prev) => ({ ...(prev && typeof prev === 'object' ? prev : {}), [name]: next }))
+  }
 
   const handleBackdropClick = (e) => {
     if (e.target === e.currentTarget) onClose()
@@ -200,15 +262,42 @@ export default function SettingsOverlay({ open, onClose, themeMode, onThemeModeC
           {/* ── Permissions ── */}
           {activeTab === 'permissions' && (
             <>
-              {PERMISSIONS.map(p => (
-                <div key={p.label} className="toggle-row">
-                  <div>
-                    <div className="toggle-label">{p.label}</div>
-                    <div className="toggle-desc">{p.desc}</div>
+              <div className="perm-intro">
+                Choose access per connected source. Read-only lets Nexus analyze. Read &amp; write lets Nexus execute external actions.
+              </div>
+              <div className="perm-list" role="list" aria-label="Source permissions">
+                {connectedSources.map((src) => (
+                  <div key={src.name} className="perm-row" role="listitem">
+                    <div className="perm-left">
+                      <div className="perm-logo" aria-hidden>{src.abbr}</div>
+                      <div>
+                        <div className="perm-name">{src.name}</div>
+                        <div className="perm-desc">
+                          {getAccess(src.name) === 'write'
+                            ? 'Nexus can read and perform changes on your behalf.'
+                            : 'Nexus can read data but cannot perform external changes.'}
+                        </div>
+                      </div>
+                    </div>
+                    <AccessControl
+                      value={getAccess(src.name)}
+                      onChange={(level) => setAccess(src.name, level)}
+                      onRequestWrite={() => setWriteRequest({ source: src.name })}
+                    />
                   </div>
-                  <Toggle defaultOn={p.defaultOn} title={p.label} />
-                </div>
-              ))}
+                ))}
+              </div>
+
+              <WriteScopeModal
+                open={!!writeRequest}
+                sourceName={writeRequest?.source || ''}
+                scopes={WRITE_SCOPES[writeRequest?.source] || []}
+                onCancel={() => setWriteRequest(null)}
+                onConfirm={() => {
+                  if (writeRequest?.source) setAccess(writeRequest.source, 'write')
+                  setWriteRequest(null)
+                }}
+              />
             </>
           )}
 

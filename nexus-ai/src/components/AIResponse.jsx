@@ -3,17 +3,18 @@ import Response2 from './responses/Response2'
 import Response3 from './responses/Response3'
 import Response4 from './responses/Response4'
 import { getResponseStep } from './responses/roleResponses'
+import AgentResponseLayout from './AgentResponseLayout'
 
-export default function AIResponse({ templateId, roleCategory, roleStepIndex, text, onExpandChart }) {
-  const renderBody = () => {
+export default function AIResponse({ templateId, roleCategory, roleStepIndex, text, onExpandChart, onSuggestedPrompt }) {
+  const renderRaw = () => {
     if (roleCategory && Number.isFinite(roleStepIndex)) {
       const RoleComponent = getResponseStep(roleCategory, roleStepIndex)
-      if (RoleComponent) return <RoleComponent onExpandChart={onExpandChart} />
+      if (RoleComponent) return RoleComponent({ onExpandChart })
     }
-    if (templateId === 1) return <Response1 />
-    if (templateId === 2) return <Response2 onExpandChart={onExpandChart} />
-    if (templateId === 3) return <Response3 onExpandChart={onExpandChart} />
-    if (templateId === 4) return <Response4 />
+    if (templateId === 1) return Response1({})
+    if (templateId === 2) return Response2({ onExpandChart })
+    if (templateId === 3) return Response3({ onExpandChart })
+    if (templateId === 4) return Response4({})
     return (
       <div style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
         {text}
@@ -24,7 +25,9 @@ export default function AIResponse({ templateId, roleCategory, roleStepIndex, te
   return (
     <div className="ai-response">
       <div className="ai-label">Nexus &nbsp;·&nbsp; just now</div>
-      {renderBody()}
+      <AgentResponseLayout onSuggestedPrompt={onSuggestedPrompt}>
+        {renderRaw()}
+      </AgentResponseLayout>
     </div>
   )
 }

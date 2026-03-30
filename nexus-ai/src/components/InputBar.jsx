@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react'
 
-export default function InputBar({ value, onChange, onSend }) {
+export default function InputBar({ value, onChange, onSend, disabled = false }) {
   const textareaRef = useRef(null)
 
   // Auto-resize textarea as content grows
@@ -20,8 +20,10 @@ export default function InputBar({ value, onChange, onSend }) {
           placeholder="Ask anything about your business..."
           rows={1}
           value={value}
+          disabled={disabled}
           onChange={e => onChange(e.target.value)}
           onKeyDown={(e) => {
+            if (disabled) return
             if (e.key !== 'Enter') return
             if (e.shiftKey) return
             e.preventDefault()
@@ -32,8 +34,8 @@ export default function InputBar({ value, onChange, onSend }) {
           className="send-btn"
           title="Send message"
           aria-label="Send message"
-          onClick={() => onSend?.()}
-          disabled={!value.trim()}
+          onClick={() => !disabled && onSend?.()}
+          disabled={disabled || !value.trim()}
         >
           <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
             <path d="M4 10h12M10 4l6 6-6 6"/>

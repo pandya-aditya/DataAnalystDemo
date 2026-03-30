@@ -14,6 +14,7 @@ export default function CanvasArea({
   onStartConversation,
   onLoadScenario,
   onSend,
+  inputDisabled = false,
   userName,
   onExpandChart,
 }) {
@@ -68,7 +69,17 @@ export default function CanvasArea({
               return <UserMessage key={i} ref={ref} text={msg.text} time={msg.time} />
             }
             if (msg.type === 'trace') return <ThoughtTrace key={i} lines={msg.lines} collapsing={msg.collapsing} />
-            if (msg.type === 'ai')    return <AIResponse   key={i} templateId={msg.templateId} roleCategory={msg.roleCategory} roleStepIndex={msg.roleStepIndex} text={msg.text} onExpandChart={onExpandChart} />
+            if (msg.type === 'ai')    return (
+              <AIResponse
+                key={i}
+                templateId={msg.templateId}
+                roleCategory={msg.roleCategory}
+                roleStepIndex={msg.roleStepIndex}
+                text={msg.text}
+                onExpandChart={onExpandChart}
+                onSuggestedPrompt={(p) => setInputValue?.(p)}
+              />
+            )
             return null
           })}
           {holdScrollHeadroom ? (
@@ -87,6 +98,7 @@ export default function CanvasArea({
         value={inputValue}
         onChange={setInputValue}
         onSend={onSend}
+        disabled={inputDisabled}
       />
     </main>
   )

@@ -27,6 +27,8 @@ export default function App() {
   const [messages, setMessages]                    = useState([])
   const [completedActions, setCompletedActions]    = useState([])
   const [inputValue, setInputValue]                = useState('')
+  const [agentResponding, setAgentResponding]      = useState(false)
+  const agentRespondingRef                         = useRef(false)
   const [guidedPrompt, setGuidedPrompt]            = useState(null)
   const [showConversation, setShowConversation]    = useState(false)
   const [contextPanelOpen, setContextPanelOpen]   = useState(false)
@@ -180,6 +182,8 @@ export default function App() {
 
   const startConversation = useCallback((id) => {
     clearTimers()
+    agentRespondingRef.current = false
+    setAgentResponding(false)
     setActiveConversationId(id)
     setActiveChatSessionId(null)
     const c = CONVERSATIONS[id]
@@ -204,6 +208,8 @@ export default function App() {
     if (!session) return
 
     clearTimers()
+    agentRespondingRef.current = false
+    setAgentResponding(false)
     setActiveConversationId(null)
     setActiveChatSessionId(sessionId)
     setSessionName(session?.title || 'Conversation')
@@ -238,6 +244,8 @@ export default function App() {
     setShowConversation(true)
 
     if (messages.length === 0) setSessionName(session?.title || getSessionTitle(step.prompt))
+    agentRespondingRef.current = true
+    setAgentResponding(true)
     setInputValue('')
     setMessages(prev => [...prev, { type: 'user', text: step.prompt, time: getTimeLabel() }])
 
@@ -263,6 +271,8 @@ export default function App() {
                   : { type: 'ai', text: step.ai?.text || "Got it — I’m pulling the latest across your connected sources and will summarize what matters." }
               ),
           ])
+          agentRespondingRef.current = false
+          setAgentResponding(false)
           delay(() => {
             if (!suppressContextPanelAutoOpenRef.current) openContextPanel()
           }, 800)
@@ -285,10 +295,15 @@ export default function App() {
     if (guidedPrompt) return
     const trimmed = inputValue.trim()
     if (!trimmed) return
+    if (agentRespondingRef.current) return
 
     clearTimers()
+    agentRespondingRef.current = true
+    setAgentResponding(true)
     suppressContextPanelAutoOpenRef.current = false
     setShowConversation(true)
+
+    setInputValue('')
 
     const now = Date.now()
     const userMessage = { type: 'user', text: trimmed, time: getTimeLabel() }
@@ -319,7 +334,6 @@ export default function App() {
           : s
       )))
     }
-    setInputValue('')
 
     const simulated = [
       'Interpreting request…',
@@ -344,6 +358,8 @@ export default function App() {
       if (activeChatSessionIdRef.current === sessionId && activeConversationIdRef.current == null) {
         setMessages(prev => [...prev, aiMessage])
       }
+      agentRespondingRef.current = false
+      setAgentResponding(false)
     }, 450)
   }, [clearTimers, createChatSessionId, delay, getSessionTitle, getTimeLabel, guidedPrompt, inputValue, messages, queueCompletedActions, sessionName])
 
@@ -355,6 +371,8 @@ export default function App() {
   // ── Reset ─────────────────────────────────────────────────────
   const resetToEmpty = useCallback(() => {
     clearTimers()
+    agentRespondingRef.current = false
+    setAgentResponding(false)
     setActiveConversationId(null)
     setActiveChatSessionId(null)
     setSessionName('New conversation')
@@ -480,6 +498,7 @@ export default function App() {
           setInputValue={handleInputValueChange}
           onStartConversation={startConversation}
           onSend={sendMessage}
+          inputDisabled={agentResponding}
           userName={workspaceName}
           onExpandChart={expandChart}
         />
