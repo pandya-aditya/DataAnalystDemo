@@ -156,11 +156,6 @@ export function RiskResponse1({ onExpandChart }) {
         </div>
       </div>
 
-      <div className="suggestions">
-        <button className="suggestion-pill visible">Build fraud monitoring dashboard</button>
-        <button className="suggestion-pill visible">Show chargebacks by payment method</button>
-        <button className="suggestion-pill visible">Generate fraud rule changelog</button>
-      </div>
     </>
   )
 }
@@ -266,13 +261,23 @@ export function RiskResponse2() {
             <button className="action-btn-ghost">Skip</button>
           </div>
         </div>
+
+        <div className="action-card visible done">
+          <div className="action-card-header">
+            <span className="platform-badge">Dashboard</span>
+            <span className="action-type-pill done">Ready</span>
+            <span className="action-title">Ops + leadership views blueprint</span>
+          </div>
+          <div className="action-description">
+            Two-view outline is ready: real-time fraud ops dashboard for triage and a weekly leadership summary that rolls up risk, losses, and mitigation status.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">Generate dashboard scaffold</button>
+            <button className="action-btn-ghost">Dismiss</button>
+          </div>
+        </div>
       </div>
 
-      <div className="suggestions">
-        <button className="suggestion-pill visible">Write weekly fraud leadership update</button>
-        <button className="suggestion-pill visible">Generate Datadog dashboard JSON</button>
-        <button className="suggestion-pill visible">Set up automated false-positive review</button>
-      </div>
     </>
   )
 }
@@ -286,55 +291,88 @@ export function RiskResponse3() {
         <p>
           Here's the weekly fraud risk update — written for leadership: what changed, what we did, and what to watch next week.
         </p>
+        <p>
+          Net assessment: attack surface is now narrowed. Next week is about monitoring approval rate in the new-account segment while the new mitigations run.
+        </p>
       </div>
 
-      <div className="response-section-title response-section-title-taken">What happened this week</div>
-      <div className="auto-actions">
-        <div className="auto-action-item">
-          <div className="auto-action-text"><strong>Chargeback spike:</strong> Rate rose from 0.41% on Monday to a peak of 0.89% on Saturday — driven by 3 device fingerprint clusters using mismatched billing/shipping on mobile web. Estimated gross fraud loss: $4,200.</div>
-          <div className="auto-action-time">Signal</div>
-        </div>
-        <div className="auto-action-item">
-          <div className="auto-action-text"><strong>Velocity attack pattern:</strong> 48 sessions with &gt;4 order attempts/hr from new accounts. Pattern consistent with card testing followed by large order execution.</div>
-          <div className="auto-action-time">Pattern</div>
-        </div>
-        <div className="auto-action-item">
-          <div className="auto-action-text"><strong>Velocity limits applied:</strong> Capped repeat order attempts for flagged device clusters. Three clusters blocked. Approval rate for good customers: unaffected (monitored hourly).</div>
-          <div className="auto-action-time">Mitigation 1</div>
-        </div>
-        <div className="auto-action-item">
-          <div className="auto-action-text"><strong>Step-up verification live:</strong> OTP step-up activated for billing/shipping mismatch on orders &gt;$120. Abandonment rate at 9% — well within acceptable threshold. Early chargeback signal improving.</div>
-          <div className="auto-action-time">Mitigation 2</div>
-        </div>
-        <div className="auto-action-item">
-          <div className="auto-action-text"><strong>Model retraining scheduled:</strong> Confirmed chargebacks from this week queued as training labels. Retrained model deploys Friday with validated improvement on this week's attack pattern.</div>
-          <div className="auto-action-time">Mitigation 3</div>
-        </div>
-      </div>
-
-      <div className="response-section-title response-section-title-permission">Watchouts next week</div>
-      <div className="intervention-item">
-        <div className="intervention-header">
-          Monitor approval rate in new-account segment
-          <span className="permission-pill">Watch</span>
-        </div>
-        <div className="intervention-desc">
-          Velocity limits are new. If legitimate new customers show conversion drop &gt;2 pts vs baseline by Wednesday, we'll loosen the threshold from 2/hr to 3/hr for accounts with email-verified status.
-        </div>
-        <div className="action-btns">
-          <button className="action-btn-primary">Set monitoring alert</button>
-          <button className="action-btn-ghost">Adjust threshold now</button>
+      <div className="data-block">
+        <div className="data-table-wrap">
+          <table className="data-table" aria-label="Weekly fraud summary">
+            <thead>
+              <tr>
+                <th>Theme</th>
+                <th>Summary</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Signal</td>
+                <td>Chargeback rate rose from 0.41% (Mon) to 0.89% peak (Sat), driven by 3 device fingerprint clusters with billing/shipping mismatch on mobile web. Est. gross fraud loss: $4,200.</td>
+              </tr>
+              <tr>
+                <td>Pattern</td>
+                <td>48 sessions with &gt;4 order attempts/hr from new accounts; consistent with card testing followed by large-order execution.</td>
+              </tr>
+              <tr>
+                <td>Mitigations</td>
+                <td>Velocity limits applied, step-up verification live, and model retraining queued with confirmed labels for Friday deploy.</td>
+              </tr>
+              <tr>
+                <td>Outlook</td>
+                <td>Estimated fraud loss rate next week: 0.20–0.25% (assuming no new vectors). Monitor in real time.</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
-      <div className="insight-callout">
-        Net assessment: attack surface is now narrowed. Estimated fraud loss rate next week: 0.20–0.25% vs 0.48% peak this week — assuming no new attack vectors emerge. We're monitoring in real-time.
-      </div>
+      <div className="response-section-title">Proposed actions</div>
+      <div className="action-cards">
+        <div className="action-card visible pending">
+          <div className="action-card-header">
+            <span className="platform-badge">Monitoring</span>
+            <span className="action-type-pill pending">Watch</span>
+            <span className="action-title">Monitor approval rate in new-account segment</span>
+          </div>
+          <div className="action-description">
+            If legitimate new customers show conversion drop &gt;2 pts vs baseline by Wednesday, loosen the threshold from 2/hr to 3/hr for accounts with email-verified status.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">Set monitoring alert</button>
+            <button className="action-btn-ghost">Adjust threshold now</button>
+          </div>
+        </div>
 
-      <div className="suggestions">
-        <button className="suggestion-pill visible">Schedule weekly fraud review</button>
-        <button className="suggestion-pill visible">Generate fraud incident report</button>
-        <button className="suggestion-pill visible">Benchmark vs industry chargeback rates</button>
+        <div className="action-card visible done">
+          <div className="action-card-header">
+            <span className="platform-badge">Rules</span>
+            <span className="action-type-pill done">Completed</span>
+            <span className="action-title">Velocity limits + cluster blocks</span>
+          </div>
+          <div className="action-description">
+            Capped repeat order attempts for flagged device clusters; three clusters blocked. Approval rate for good customers remains stable (monitored hourly).
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">View rule changelog</button>
+            <button className="action-btn-ghost">Dismiss</button>
+          </div>
+        </div>
+
+        <div className="action-card visible done">
+          <div className="action-card-header">
+            <span className="platform-badge">Step-up</span>
+            <span className="action-type-pill done">Completed</span>
+            <span className="action-title">OTP for mismatch orders &gt;$120</span>
+          </div>
+          <div className="action-description">
+            Step-up verification is live for billing/shipping mismatches on high-value orders; abandonment is 9% and early chargeback signal is improving.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">View results</button>
+            <button className="action-btn-ghost">Dismiss</button>
+          </div>
+        </div>
       </div>
     </>
   )

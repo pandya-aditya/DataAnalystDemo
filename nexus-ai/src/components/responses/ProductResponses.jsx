@@ -99,12 +99,6 @@ export function ProductResponse1() {
           </div>
         </div>
       </div>
-
-      <div className="suggestions">
-        <button className="suggestion-pill visible">Turn A into a full PRD</button>
-        <button className="suggestion-pill visible">Map problems to NPS verbatims</button>
-        <button className="suggestion-pill visible">Estimate revenue impact of fix A</button>
-      </div>
     </>
   )
 }
@@ -163,38 +157,42 @@ export function ProductResponse2() {
         </div>
       </div>
 
-      <div className="response-section-title">Key risks</div>
+      <div className="response-section-title">Proposed actions</div>
       <div className="action-cards">
         <div className="action-card visible alert">
           <div className="action-card-header">
-            <span className="platform-badge">Risk</span>
-            <span className="action-type-pill alert">Medium</span>
-            <span className="action-title">Shipping rule complexity + regressions</span>
+            <span className="platform-badge">QA</span>
+            <span className="action-type-pill alert">Priority</span>
+            <span className="action-title">Build shipping/tax regression matrix</span>
           </div>
           <div className="action-description">
-            Hidden complexity in shipping/tax rules may cause edge-case failures. Mitigation: thorough QA matrix (international, PO boxes, coupons, split shipments).
+            Cover international, PO boxes, coupons, split shipments, and gift cards. Block rollout if any payment/shipping edge cases fail.
           </div>
         </div>
         <div className="action-card visible pending">
           <div className="action-card-header">
-            <span className="platform-badge">Risk</span>
-            <span className="action-type-pill pending">Low-Medium</span>
-            <span className="action-title">Prefill defaults incorrectly shown</span>
+            <span className="platform-badge">Experiment</span>
+            <span className="action-type-pill pending">Suggested</span>
+            <span className="action-title">Pilot prefill with returning users</span>
           </div>
           <div className="action-description">
-            Prefilled fields must show clear "edit" affordances. Run a pilot with a small returning-user segment before full rollout.
+            Ensure prefilled fields have clear edit affordances; start with a small returning-user cohort before ramping broadly.
           </div>
         </div>
-      </div>
-
-      <div className="insight-callout">
-        Phased rollout: 5% → 25% → 100% with automated rollback triggers on payment failure rate and checkout error spikes.
-      </div>
-
-      <div className="suggestions">
-        <button className="suggestion-pill visible">Build A/B test + rollout plan</button>
-        <button className="suggestion-pill visible">Generate ticket breakdown for eng</button>
-        <button className="suggestion-pill visible">Estimate engineering effort</button>
+        <div className="action-card visible done">
+          <div className="action-card-header">
+            <span className="platform-badge">Rollout</span>
+            <span className="action-type-pill done">Ready</span>
+            <span className="action-title">Phased ramp with rollback triggers</span>
+          </div>
+          <div className="action-description">
+            Ramp <span className="code-highlight">5%</span> → <span className="code-highlight">25%</span> → <span className="code-highlight">100%</span> with automatic rollback on payment failure rate and checkout error spikes.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">Create rollout checklist</button>
+            <button className="action-btn-ghost">Skip</button>
+          </div>
+        </div>
       </div>
     </>
   )
@@ -313,12 +311,6 @@ export function ProductResponse3({ onExpandChart }) {
             Events: <span className="code-highlight">checkout_step_viewed</span>, <span className="code-highlight">checkout_error_shown</span>, <span className="code-highlight">order_completed</span>. Sentry alerts on checkout JS errors; anomaly monitor on completion rate.
           </div>
         </div>
-      </div>
-
-      <div className="suggestions">
-        <button className="suggestion-pill visible">Export checklist as Jira tickets</button>
-        <button className="suggestion-pill visible">Draft eng handoff notes</button>
-        <button className="suggestion-pill visible">Set up automated result monitoring</button>
       </div>
     </>
   )

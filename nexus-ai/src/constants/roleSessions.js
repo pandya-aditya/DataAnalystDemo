@@ -887,11 +887,11 @@ const stepsFor = ({ name, industry, role, category }) => {
 export function buildRoleSession(profile) {
   const role = profile?.role
   const category = ROLE_CATEGORY[role] || 'default'
-  return stepsFor({
+  const session = stepsFor({
     name: profile?.name,
     industry: profile?.industry,
     role,
     category,
   })
+  return { ...session, category }
 }
-

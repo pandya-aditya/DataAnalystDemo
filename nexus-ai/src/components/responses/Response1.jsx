@@ -53,16 +53,38 @@ export default function Response1() {
         </div>
       </div>
 
-      <div className="insight-callout">
-        Recommendation: pause the worst-performing TikTok ad sets, reallocate 15–25% of spend to Meta high-intent audiences, and tighten Google brand exclusions.
-      </div>
+      <div className="response-section-title">Proposed actions</div>
+      <div className="action-cards">
+        <div className="action-card visible pending">
+          <div className="action-card-header">
+            <span className="platform-badge">Meta / TikTok</span>
+            <span className="action-type-pill pending">Suggested</span>
+            <span className="action-title">Reallocate spend to Meta</span>
+          </div>
+          <div className="action-detail">
+            Pause bottom-quartile TikTok ad sets and shift <span className="code-highlight">15–25%</span> of spend into Meta high-intent audiences; tighten Google brand exclusions.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">Draft reallocation plan</button>
+            <button className="action-btn-ghost">Review ad sets</button>
+          </div>
+        </div>
 
-      <div className="suggestions">
-        <button className="suggestion-pill visible">Draft reallocation plan</button>
-        <button className="suggestion-pill visible">Show cohorts by creative</button>
-        <button className="suggestion-pill visible">Set CAC guardrails</button>
+        <div className="action-card visible done">
+          <div className="action-card-header">
+            <span className="platform-badge">Slack</span>
+            <span className="action-type-pill done">Ready</span>
+            <span className="action-title">Set CAC guardrails</span>
+          </div>
+          <div className="action-description">
+            Alert when TikTok CAC exceeds <span className="code-highlight">$55</span> or LTV:CAC drops below <span className="code-highlight">2.5×</span>, and send a weekly channel health summary.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">Send alert draft</button>
+            <button className="action-btn-ghost">Dismiss</button>
+          </div>
+        </div>
       </div>
     </>
   )
 }
-

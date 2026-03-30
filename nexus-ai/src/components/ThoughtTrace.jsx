@@ -4,11 +4,11 @@ export default function ThoughtTrace({ lines, collapsing }) {
   const [visibleCount, setVisibleCount] = useState(0)
 
   useEffect(() => {
-    // Reveal each line one by one, 280ms apart
-    lines.forEach((_, i) => {
-      const t = setTimeout(() => setVisibleCount(i + 1), i * 280)
-      return () => clearTimeout(t)
-    })
+    setVisibleCount(0)
+    const timers = lines.map((_, i) =>
+      setTimeout(() => setVisibleCount(i + 1), i * 280)
+    )
+    return () => timers.forEach(clearTimeout)
   }, [lines])
 
   return (

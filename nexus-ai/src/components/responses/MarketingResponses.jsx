@@ -44,6 +44,9 @@ export function MarketingResponse1({ onExpandChart }) {
         <p>
           Here's the 7-day acquisition audit across all active channels. TikTok is the single biggest lever — CAC has climbed 38% week-over-week while LTV has stayed flat. Reallocating 20% of TikTok spend to Meta's best-performing audience segment is the fastest ROI move.
         </p>
+        <p>
+          The goal is to protect volume while improving blended CAC: cut waste on TikTok, scale Meta winners, and keep Google Search under watch.
+        </p>
       </div>
 
       <div className="data-block">
@@ -110,14 +113,37 @@ export function MarketingResponse1({ onExpandChart }) {
         </div>
       </div>
 
-      <div className="insight-callout">
-        Biggest single lever: pause bottom-quartile TikTok ad sets and shift $4–5k/week to Meta's top retargeting audience. Expected CAC blended improvement: ~12% in 10 days.
-      </div>
+      <div className="response-section-title">Proposed actions</div>
+      <div className="action-cards">
+        <div className="action-card visible pending">
+          <div className="action-card-header">
+            <span className="platform-badge">Meta / TikTok</span>
+            <span className="action-type-pill pending">Suggested</span>
+            <span className="action-title">Reallocate 20% of TikTok spend to Meta</span>
+          </div>
+          <div className="action-detail">
+            Pause bottom-quartile TikTok ad sets and shift <span className="code-highlight">$4–5k/week</span> into Meta's best-performing retargeting audience. Target: ~12% blended CAC improvement in 10 days.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">Draft reallocation plan</button>
+            <button className="action-btn-ghost">Review ad sets</button>
+          </div>
+        </div>
 
-      <div className="suggestions">
-        <button className="suggestion-pill visible">Build 2-week test plan</button>
-        <button className="suggestion-pill visible">Show creative breakdown by CTR</button>
-        <button className="suggestion-pill visible">Draft reallocation plan</button>
+        <div className="action-card visible done">
+          <div className="action-card-header">
+            <span className="platform-badge">Slack</span>
+            <span className="action-type-pill done">Ready</span>
+            <span className="action-title">Set CAC guardrails by channel</span>
+          </div>
+          <div className="action-description">
+            Alert when CAC drifts above thresholds (TikTok most sensitive) and post a weekly channel health summary with LTV:CAC and ROAS.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">Send alert draft</button>
+            <button className="action-btn-ghost">Dismiss</button>
+          </div>
+        </div>
       </div>
     </>
   )
@@ -208,12 +234,6 @@ export function MarketingResponse2() {
           </div>
         </div>
       </div>
-
-      <div className="suggestions">
-        <button className="suggestion-pill visible">Draft stakeholder update</button>
-        <button className="suggestion-pill visible">Generate creative brief for Exp 1</button>
-        <button className="suggestion-pill visible">Set up UTM tracking schema</button>
-      </div>
     </>
   )
 }
@@ -227,51 +247,88 @@ export function MarketingResponse3() {
         <p>
           Here's the stakeholder update — written for a leadership audience who cares about what we're doing, why, and what success looks like. Paste directly into email or Slack.
         </p>
+        <p>
+          Success is blended CAC down, ROAS up, with AOV and refund rate neutral or improved while holding acquisition volume.
+        </p>
       </div>
 
-      <div className="response-section-title response-section-title-taken">What we're testing (next 2 weeks)</div>
-      <div className="auto-actions">
-        <div className="auto-action-item">
-          <div className="auto-action-text">Creative refresh on Meta: new hook and value prop to improve click-through and message clarity. Targeting 15–20% CAC reduction.</div>
-          <div className="auto-action-time">Exp 1</div>
-        </div>
-        <div className="auto-action-item">
-          <div className="auto-action-text">Audience tightening: shorter retargeting window (3d vs 14d) on Meta and Google to increase purchase intent signal.</div>
-          <div className="auto-action-time">Exp 2</div>
-        </div>
-        <div className="auto-action-item">
-          <div className="auto-action-text">Landing page message-match: aligning ad offer copy to PDP headline to reduce post-click drop-off. Target: +10% ATC rate.</div>
-          <div className="auto-action-time">Exp 3</div>
-        </div>
-        <div className="auto-action-item">
-          <div className="auto-action-text">Immediate: paused bottom-quartile TikTok ad sets (CAC $72 vs $28 Meta) and redirected $4.5k/week to proven Meta audiences.</div>
-          <div className="auto-action-time">Done</div>
-        </div>
-      </div>
-
-      <div className="response-section-title response-section-title-permission">What we need</div>
-      <div className="intervention-item">
-        <div className="intervention-header">
-          Approve creative budget for 3 new ad variants
-          <span className="permission-pill">Approval</span>
-        </div>
-        <div className="intervention-desc">
-          We need 3 new creative assets (video hooks + static) for Experiment 1. Estimated cost: $2,500 from design. Without this, we test copy-only which limits the experiment's upside.
-        </div>
-        <div className="action-btns">
-          <button className="action-btn-primary">Approve</button>
-          <button className="action-btn-ghost">Use existing creative</button>
+      <div className="data-block">
+        <div className="data-table-wrap">
+          <table className="data-table" aria-label="Experiment summary">
+            <thead>
+              <tr>
+                <th>Experiment</th>
+                <th>What we're changing</th>
+                <th>Target outcome</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Exp 1</td>
+                <td>Creative refresh on Meta (new hook + value prop)</td>
+                <td className="cell-green">15–20% CAC reduction</td>
+              </tr>
+              <tr>
+                <td>Exp 2</td>
+                <td>Audience tightening (3-day retargeting window) on Meta and Google</td>
+                <td className="cell-green">Higher intent signal, ROAS up</td>
+              </tr>
+              <tr>
+                <td>Exp 3</td>
+                <td>Landing page message-match (ad offer copy → PDP headline)</td>
+                <td className="cell-green">+10% add-to-cart rate</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
-      <div className="insight-callout">
-        Success looks like: blended CAC down, ROAS up, AOV and refund rate neutral or improved — all maintained while holding current acquisition volume.
-      </div>
+      <div className="response-section-title">Proposed actions</div>
+      <div className="action-cards">
+        <div className="action-card visible pending">
+          <div className="action-card-header">
+            <span className="platform-badge">Design</span>
+            <span className="action-type-pill pending">Approval</span>
+            <span className="action-title">Approve $2,500 creative budget (3 variants)</span>
+          </div>
+          <div className="action-description">
+            Fund 3 new creative assets (video hooks + static) for Experiment 1. Without this, the test is copy-only and the upside is limited.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">Approve</button>
+            <button className="action-btn-ghost">Use existing creative</button>
+          </div>
+        </div>
 
-      <div className="suggestions">
-        <button className="suggestion-pill visible">Generate creative brief</button>
-        <button className="suggestion-pill visible">Set up automated CAC alerts</button>
-        <button className="suggestion-pill visible">Plan Week 2 review meeting</button>
+        <div className="action-card visible pending">
+          <div className="action-card-header">
+            <span className="platform-badge">Ops</span>
+            <span className="action-type-pill pending">Suggested</span>
+            <span className="action-title">Schedule Week 2 review + budget rebalance</span>
+          </div>
+          <div className="action-description">
+            Day 8 decision: kill losers (CAC &gt;15% above control), scale winners, and refine landing page variant using heatmap and cohort data.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">Schedule review</button>
+            <button className="action-btn-ghost">Later</button>
+          </div>
+        </div>
+
+        <div className="action-card visible done">
+          <div className="action-card-header">
+            <span className="platform-badge">TikTok</span>
+            <span className="action-type-pill done">Completed</span>
+            <span className="action-title">Paused bottom-quartile ad sets</span>
+          </div>
+          <div className="action-description">
+            Paused the worst performers (CAC $72 vs $28 Meta) and redirected <span className="code-highlight">$4.5k/week</span> to proven Meta audiences.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">View changes</button>
+            <button className="action-btn-ghost">Dismiss</button>
+          </div>
+        </div>
       </div>
     </>
   )

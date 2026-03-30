@@ -102,14 +102,37 @@ export function DataResponse1() {
         </div>
       </div>
 
-      <div className="insight-callout">
-        Recommended: codify these definitions in a dbt metrics layer or semantic layer (Looker, Cube, or similar) so no analyst can accidentally diverge.
-      </div>
+      <div className="response-section-title">Proposed actions</div>
+      <div className="action-cards">
+        <div className="action-card visible pending">
+          <div className="action-card-header">
+            <span className="platform-badge">dbt</span>
+            <span className="action-type-pill pending">Suggested</span>
+            <span className="action-title">Create a metrics/semantic definition layer</span>
+          </div>
+          <div className="action-description">
+            Codify KPI definitions in a dbt metrics layer or semantic layer (Looker, Cube, or similar) so every team computes the same numbers.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">Draft metrics YAML</button>
+            <button className="action-btn-ghost">Map to sources</button>
+          </div>
+        </div>
 
-      <div className="suggestions">
-        <button className="suggestion-pill visible">Build 6 automated DQ checks</button>
-        <button className="suggestion-pill visible">Draft dbt metrics YAML scaffold</button>
-        <button className="suggestion-pill visible">Map metrics to data sources</button>
+        <div className="action-card visible done">
+          <div className="action-card-header">
+            <span className="platform-badge">Docs</span>
+            <span className="action-type-pill done">Ready</span>
+            <span className="action-title">KPI definition pack</span>
+          </div>
+          <div className="action-description">
+            Definitions and edge cases are consolidated for the top 10 KPIs to prevent drift (attribution, gross vs net, LTV windows).
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">Export definitions</button>
+            <button className="action-btn-ghost">Dismiss</button>
+          </div>
+        </div>
       </div>
     </>
   )
@@ -218,11 +241,6 @@ export function DataResponse2() {
         </div>
       </div>
 
-      <div className="suggestions">
-        <button className="suggestion-pill visible">Design exec vs operator dashboards</button>
-        <button className="suggestion-pill visible">Generate dbt test YAML scaffold</button>
-        <button className="suggestion-pill visible">Add checks to CI/CD pipeline</button>
-      </div>
     </>
   )
 }
@@ -325,16 +343,16 @@ export function DataResponse3({ onExpandChart }) {
             Operators need to act fast. Embed anomaly flags directly in the funnel and channel views — not in a separate "alerts" tab — so the insight and the decision live together.
           </div>
         </div>
-      </div>
-
-      <div className="insight-callout">
-        Recommended tooling: dbt semantic layer → Looker or Metabase for operator; same layer → Notion or Hex for exec narrative. Avoid maintaining two separate data models.
-      </div>
-
-      <div className="suggestions">
-        <button className="suggestion-pill visible">Draft Looker LookML scaffold</button>
-        <button className="suggestion-pill visible">Build anomaly detection model</button>
-        <button className="suggestion-pill visible">Map dashboard to team OKRs</button>
+        <div className="action-card visible done">
+          <div className="action-card-header">
+            <span className="platform-badge">Tooling</span>
+            <span className="action-type-pill done">Ready</span>
+            <span className="action-title">Single semantic layer, two surfaces</span>
+          </div>
+          <div className="action-description">
+            Recommended: dbt semantic layer → Looker/Metabase for operator workflows; same layer → Notion/Hex for executive narrative. Avoid maintaining two data models.
+          </div>
+        </div>
       </div>
     </>
   )

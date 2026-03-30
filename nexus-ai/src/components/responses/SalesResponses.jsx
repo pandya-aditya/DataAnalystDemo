@@ -101,14 +101,37 @@ export function SalesResponse1({ onExpandChart }) {
         </div>
       </div>
 
-      <div className="insight-callout">
-        Total at-risk pipeline: $262,000. If stalled deals don't progress within 7 days, probability of close in this quarter drops significantly. Start with Acme Corp and Northstar Ltd — highest value + longest stall.
-      </div>
+      <div className="response-section-title">Proposed actions</div>
+      <div className="action-cards">
+        <div className="action-card visible pending">
+          <div className="action-card-header">
+            <span className="platform-badge">CRM</span>
+            <span className="action-type-pill pending">Suggested</span>
+            <span className="action-title">Restart stalled deals (next 7 days)</span>
+          </div>
+          <div className="action-description">
+            At-risk pipeline totals <span className="code-highlight">$262k</span>. Start with Acme and Northstar (highest value + longest stall) and drive to a scheduled next step this week.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">Build 2-week outreach plan</button>
+            <button className="action-btn-ghost">Open stalled deals</button>
+          </div>
+        </div>
 
-      <div className="suggestions">
-        <button className="suggestion-pill visible">Build 2-week outreach plan</button>
-        <button className="suggestion-pill visible">Draft ROI summary for Northstar</button>
-        <button className="suggestion-pill visible">Generate mutual action plan template</button>
+        <div className="action-card visible done">
+          <div className="action-card-header">
+            <span className="platform-badge">Enablement</span>
+            <span className="action-type-pill done">Ready</span>
+            <span className="action-title">Mutual action plan template</span>
+          </div>
+          <div className="action-description">
+            Template ready for a shared close path (decision criteria, stakeholders, dates) to unblock deals stuck in Demo/Eval → Proposal.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">Generate MAP</button>
+            <button className="action-btn-ghost">Dismiss</button>
+          </div>
+        </div>
       </div>
     </>
   )
@@ -223,12 +246,6 @@ export function SalesResponse2() {
           </div>
         </div>
       </div>
-
-      <div className="suggestions">
-        <button className="suggestion-pill visible">Draft leadership pipeline update</button>
-        <button className="suggestion-pill visible">Generate ROI doc for Northstar</button>
-        <button className="suggestion-pill visible">Log all tasks in CRM</button>
-      </div>
     </>
   )
 }
@@ -242,61 +259,88 @@ export function SalesResponse3() {
         <p>
           Here's the leadership update on pipeline risks — written to give executives the context they need to act, not just a list of numbers.
         </p>
+        <p>
+          Two asks unlock the highest-value stalled deals: exec sponsor outreach and approval for a phased pricing option.
+        </p>
       </div>
 
-      <div className="response-section-title response-section-title-taken">Pipeline status</div>
-      <div className="auto-actions">
-        <div className="auto-action-item">
-          <div className="auto-action-text"><strong>Total pipeline:</strong> $262k in at-risk deals across 5 accounts at Proposal and Negotiation stages. Stall average: 16 days without logged activity.</div>
-          <div className="auto-action-time">Overview</div>
-        </div>
-        <div className="auto-action-item">
-          <div className="auto-action-text"><strong>Acme Corp ($84k):</strong> Pricing friction in negotiation. Proposed a phased rollout to reduce initial commitment. Champion engaged; needs exec alignment to close.</div>
-          <div className="auto-action-time">Top deal</div>
-        </div>
-        <div className="auto-action-item">
-          <div className="auto-action-text"><strong>Northstar Ltd ($52k):</strong> Missing internal sponsor — deal is stalled without a champion to push internally. Exec-to-exec touch requested.</div>
-          <div className="auto-action-time">At risk</div>
-        </div>
-        <div className="auto-action-item">
-          <div className="auto-action-text"><strong>2-week plan underway:</strong> Mutual action plans sent; ROI artifacts in progress; stakeholder mapping calls scheduled for Northstar and Brightfield.</div>
-          <div className="auto-action-time">In progress</div>
-        </div>
-      </div>
-
-      <div className="response-section-title response-section-title-permission">What we need from leadership</div>
-      <div className="intervention-item">
-        <div className="intervention-header">
-          Executive sponsor for Acme Corp and Northstar Ltd
-          <span className="permission-pill">Ask</span>
-        </div>
-        <div className="intervention-desc">
-          Both deals need an exec-to-exec touch to unblock decision-making. A 15-minute intro call from a VP or C-level would significantly increase close probability. Can you reach out directly to your contacts at each?
-        </div>
-        <div className="action-btns">
-          <button className="action-btn-primary">Confirm availability</button>
-          <button className="action-btn-ghost">Share contact details</button>
-        </div>
-      </div>
-
-      <div className="intervention-item">
-        <div className="intervention-header">
-          Approve phased rollout pricing option for Acme Corp
-          <span className="permission-pill">Approval</span>
-        </div>
-        <div className="intervention-desc">
-          Acme is hesitating on full contract value. A phased rollout (Month 1–3 at 60% seats, then full expansion) would unlock the deal. This requires pricing approval outside standard discount authority.
-        </div>
-        <div className="action-btns">
-          <button className="action-btn-primary">Approve</button>
-          <button className="action-btn-ghost">Schedule review call</button>
+      <div className="data-block">
+        <div className="data-table-wrap">
+          <table className="data-table" aria-label="Leadership pipeline summary">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Summary</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>At-risk pipeline</td>
+                <td>$262k across 5 accounts in Proposal/Negotiation; avg stall is 16 days without logged activity.</td>
+              </tr>
+              <tr>
+                <td>Top deal (Acme, $84k)</td>
+                <td>Pricing friction in negotiation; phased rollout proposed; needs exec alignment to close.</td>
+              </tr>
+              <tr>
+                <td>Most at-risk (Northstar, $52k)</td>
+                <td>Missing internal sponsor; exec-to-exec touch requested to unblock decision-making.</td>
+              </tr>
+              <tr>
+                <td>Plan status</td>
+                <td>Mutual action plans sent; ROI artifacts in progress; stakeholder mapping calls scheduled.</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
-      <div className="suggestions">
-        <button className="suggestion-pill visible">Generate exec intro email for Acme</button>
-        <button className="suggestion-pill visible">Update CRM stage + forecast</button>
-        <button className="suggestion-pill visible">Schedule weekly pipeline review</button>
+      <div className="response-section-title">Proposed actions</div>
+      <div className="action-cards">
+        <div className="action-card visible pending">
+          <div className="action-card-header">
+            <span className="platform-badge">Leadership</span>
+            <span className="action-type-pill pending">Ask</span>
+            <span className="action-title">Exec sponsor outreach for Acme + Northstar</span>
+          </div>
+          <div className="action-description">
+            A 15-minute exec-to-exec intro call materially increases close probability for both deals. Confirm availability and share contact details.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">Confirm availability</button>
+            <button className="action-btn-ghost">Share contact details</button>
+          </div>
+        </div>
+
+        <div className="action-card visible pending">
+          <div className="action-card-header">
+            <span className="platform-badge">Pricing</span>
+            <span className="action-type-pill pending">Approval</span>
+            <span className="action-title">Approve phased rollout pricing for Acme</span>
+          </div>
+          <div className="action-description">
+            Month 1–3 at 60% seats, then expand to full. This unlocks the deal but requires approval outside standard discount authority.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">Approve</button>
+            <button className="action-btn-ghost">Schedule review call</button>
+          </div>
+        </div>
+
+        <div className="action-card visible done">
+          <div className="action-card-header">
+            <span className="platform-badge">CRM</span>
+            <span className="action-type-pill done">In progress</span>
+            <span className="action-title">2-week outreach plan underway</span>
+          </div>
+          <div className="action-description">
+            Mutual action plans and ROI artifacts are in motion; stakeholder mapping calls are scheduled for Northstar and Brightfield.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">View tasks</button>
+            <button className="action-btn-ghost">Dismiss</button>
+          </div>
+        </div>
       </div>
     </>
   )

@@ -136,12 +136,6 @@ export function EngineeringResponse1({ onExpandChart }) {
           </div>
         </div>
       </div>
-
-      <div className="suggestions">
-        <button className="suggestion-pill visible">Build 1-week execution plan</button>
-        <button className="suggestion-pill visible">Show p99 latency breakdown by endpoint</button>
-        <button className="suggestion-pill visible">Compare vs last week's error rates</button>
-      </div>
     </>
   )
 }
@@ -227,12 +221,6 @@ export function EngineeringResponse2() {
           </div>
         </div>
       </div>
-
-      <div className="suggestions">
-        <button className="suggestion-pill visible">Draft post-ship stakeholder update</button>
-        <button className="suggestion-pill visible">Export tickets to Jira</button>
-        <button className="suggestion-pill visible">Add runbook links to tickets</button>
-      </div>
     </>
   )
 }
@@ -246,25 +234,39 @@ export function EngineeringResponse3() {
         <p>
           Here's a concise post-ship update ready to paste into Slack or your release notes page. It's written for a mixed technical/non-technical audience.
         </p>
+        <p>
+          The three highest-impact fixes are shipped; the remaining work is monitoring and ramping safely to 100%.
+        </p>
       </div>
 
-      <div className="response-section-title response-section-title-taken">What shipped</div>
-      <div className="auto-actions">
-        <div className="auto-action-item">
-          <div className="auto-action-text">Checkout: reduced intermittent validation failures and improved error recovery messaging — users no longer hit a dead-end state.</div>
-          <div className="auto-action-time">Fix 1</div>
-        </div>
-        <div className="auto-action-item">
-          <div className="auto-action-text">PDP: faster mobile load via responsive images, above-the-fold prioritization, and deferred non-critical scripts.</div>
-          <div className="auto-action-time">Fix 2</div>
-        </div>
-        <div className="auto-action-item">
-          <div className="auto-action-text">Backend: improved p95 latency on /cart and /checkout via caching, index tuning, and circuit-breaker timeouts.</div>
-          <div className="auto-action-time">Fix 3</div>
+      <div className="data-block">
+        <div className="data-table-wrap">
+          <table className="data-table" aria-label="Post-ship summary">
+            <thead>
+              <tr>
+                <th>Shipped change</th>
+                <th>Outcome</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Checkout reliability hardening</td>
+                <td>Reduced intermittent validation failures; improved error recovery so users don't hit dead-ends.</td>
+              </tr>
+              <tr>
+                <td>PDP performance improvements</td>
+                <td>Faster mobile load via responsive images, above-the-fold prioritization, and deferred non-critical scripts.</td>
+              </tr>
+              <tr>
+                <td>API latency stabilization</td>
+                <td>Improved p95 on <span className="code-highlight">/cart</span> and <span className="code-highlight">/checkout</span> via caching, index tuning, and circuit-breaker timeouts.</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
-      <div className="response-section-title response-section-title-permission">Impact we're watching</div>
+      <div className="response-section-title">Impact we're watching</div>
       <div className="data-block">
         <div className="data-table-wrap">
           <table className="data-table" aria-label="Post-launch monitoring metrics">
@@ -306,14 +308,37 @@ export function EngineeringResponse3() {
         </div>
       </div>
 
-      <div className="insight-callout">
-        Next: if all metrics hold for 48 hours, ramp to 100% and close remaining edge-case tickets. Retro scheduled for Friday.
-      </div>
+      <div className="response-section-title">Proposed actions</div>
+      <div className="action-cards">
+        <div className="action-card visible pending">
+          <div className="action-card-header">
+            <span className="platform-badge">Release</span>
+            <span className="action-type-pill pending">Suggested</span>
+            <span className="action-title">Ramp to 100% if metrics hold for 48 hours</span>
+          </div>
+          <div className="action-description">
+            If payment failures, checkout completion, and latency remain stable for 48 hours, ramp from partial exposure to 100% and close remaining edge-case tickets.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">Start ramp checklist</button>
+            <button className="action-btn-ghost">Hold at current %</button>
+          </div>
+        </div>
 
-      <div className="suggestions">
-        <button className="suggestion-pill visible">Schedule retro</button>
-        <button className="suggestion-pill visible">Start next reliability sprint</button>
-        <button className="suggestion-pill visible">Draft incident post-mortem</button>
+        <div className="action-card visible done">
+          <div className="action-card-header">
+            <span className="platform-badge">RCA</span>
+            <span className="action-type-pill done">Ready</span>
+            <span className="action-title">Schedule retro + publish release note</span>
+          </div>
+          <div className="action-description">
+            Retro agenda drafted with rollback triggers, lessons learned, and follow-ups; release note format ready for Slack or release page.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">Schedule retro</button>
+            <button className="action-btn-ghost">Dismiss</button>
+          </div>
+        </div>
       </div>
     </>
   )

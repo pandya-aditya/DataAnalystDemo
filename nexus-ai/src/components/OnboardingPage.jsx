@@ -54,17 +54,22 @@ const ROLES = [
 ]
 
 const INDUSTRIES = [
-  'E-commerce / Retail',
-  'SaaS / Software',
-  'Fintech / Finance',
-  'Healthcare',
-  'Media & Entertainment',
-  'Logistics & Supply Chain',
-  'Education / EdTech',
-  'Travel & Hospitality',
-  'Real Estate',
-  'Consumer Goods',
-  'Agency / Consulting',
+  'Fashion & Apparel',
+  'Electronics & Gadgets',
+  'Health & Beauty',
+  'Home & Furniture',
+  'Groceries & Food Delivery',
+  'Luxury Goods',
+  'Sports & Outdoor',
+  'Toys & Games',
+  'Automotive Parts & Accessories',
+  'Pet Supplies',
+  'Digital Products (eBooks, Software, Courses)',
+  'Subscription Boxes',
+  'Handmade & Crafts',
+  'Second-Hand / Resale',
+  'Wholesale / B2B E-commerce',
+  'On-Demand / Print-on-Demand',
   'Other',
 ]
 

@@ -2,9 +2,14 @@ import Response1 from './responses/Response1'
 import Response2 from './responses/Response2'
 import Response3 from './responses/Response3'
 import Response4 from './responses/Response4'
+import { getResponseStep } from './responses/roleResponses'
 
-export default function AIResponse({ templateId, text, onExpandChart }) {
+export default function AIResponse({ templateId, roleCategory, roleStepIndex, text, onExpandChart }) {
   const renderBody = () => {
+    if (roleCategory && Number.isFinite(roleStepIndex)) {
+      const RoleComponent = getResponseStep(roleCategory, roleStepIndex)
+      if (RoleComponent) return <RoleComponent onExpandChart={onExpandChart} />
+    }
     if (templateId === 1) return <Response1 />
     if (templateId === 2) return <Response2 onExpandChart={onExpandChart} />
     if (templateId === 3) return <Response3 onExpandChart={onExpandChart} />

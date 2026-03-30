@@ -4,9 +4,8 @@ export default function KpiBubble({ onClick }) {
       type="button"
       className="kpi-bubble-btn"
       onClick={onClick}
-      data-tooltip="KPI overview"
-      aria-label="KPI overview"
-      title="KPI overview"
+      data-tooltip="Get overview"
+      aria-label="Get KPI overview"
     >
       <svg
         viewBox="0 0 24 24"

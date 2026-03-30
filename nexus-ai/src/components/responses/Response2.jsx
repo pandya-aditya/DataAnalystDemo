@@ -41,7 +41,7 @@ export default function Response2({ onExpandChart }) {
         />
       </div>
 
-      <div className="response-section-title">Next actions</div>
+      <div className="response-section-title">Proposed actions</div>
       <div className="action-cards">
         <div className="action-card visible pending">
           <div className="action-card-header">
@@ -72,8 +72,22 @@ export default function Response2({ onExpandChart }) {
             <button className="action-btn-ghost">Later</button>
           </div>
         </div>
+
+        <div className="action-card visible done">
+          <div className="action-card-header">
+            <span className="platform-badge">BigQuery</span>
+            <span className="action-type-pill done">Ready</span>
+            <span className="action-title">Set cost variance alerts</span>
+          </div>
+          <div className="action-description">
+            Daily alert when shipping cost/order moves &gt; <span className="code-highlight">$1.00</span> or refund rate moves &gt; <span className="code-highlight">1.5 pts</span> versus the prior 7‑day average.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">Create alert</button>
+            <button className="action-btn-ghost">Dismiss</button>
+          </div>
+        </div>
       </div>
     </>
   )
 }
-

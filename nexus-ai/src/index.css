@@ -433,12 +433,18 @@ input, textarea { font-family: inherit; }
   flex-direction: column;
   gap: 32px;
 }
+/* Scroll headroom while the latest message is user-only (response still loading). */
+.conversation-response-reserve {
+  flex-shrink: 0;
+  min-height: 0;
+}
 
 /* User Message */
 .user-message {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  flex-shrink: 0;
   animation: fadeIn 150ms var(--ease-out) both;
 }
 @keyframes fadeIn {
@@ -467,6 +473,7 @@ input, textarea { font-family: inherit; }
   animation: pulseBar 1.4s infinite;
   border-radius: 0 4px 4px 0;
   overflow: hidden;
+  flex-shrink: 0;
   transition: max-height 300ms var(--ease-out), opacity 300ms var(--ease-out), padding 300ms;
   max-height: 400px;
 }
@@ -497,6 +504,7 @@ input, textarea { font-family: inherit; }
 
 /* AI Response Block */
 .ai-response {
+  flex-shrink: 0;
   animation: responseIn 300ms var(--ease-out) both;
 }
 @keyframes responseIn {
@@ -1371,19 +1379,24 @@ input, textarea { font-family: inherit; }
 .kpi-bubble-btn::after {
   content: attr(data-tooltip);
   position: absolute;
-  left: 50%;
-  top: -10px;
-  transform: translateX(-50%) translateY(-6px);
+  left: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%) translateX(-4px);
   opacity: 0;
   pointer-events: none;
   white-space: nowrap;
-  padding: 8px 10px;
-  font-size: 11px;
+  max-width: min(180px, calc(100vw - 80px));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 5px 8px;
+  font-size: 10px;
+  font-weight: 500;
   color: var(--text-primary);
-  background: rgba(20,20,22,0.92);
+  background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
-  border-radius: 8px;
+  border-radius: 6px;
   box-shadow: var(--shadow-card);
+  z-index: 130;
   transition: opacity 160ms var(--ease-out), transform 160ms var(--ease-out);
 }
 .kpi-bubble-btn:hover {
@@ -1392,7 +1405,7 @@ input, textarea { font-family: inherit; }
 }
 .kpi-bubble-btn:hover::after {
   opacity: 1;
-  transform: translateX(-50%) translateY(-12px);
+  transform: translateX(-50%) translateY(0);
 }
 .kpi-bubble-btn:active { transform: translateY(-1px) scale(0.98); }
 .kpi-bubble-btn:focus-visible {

@@ -102,7 +102,7 @@ export function CommerceResponse1({ onExpandChart }) {
         </div>
       </div>
 
-      <div className="response-section-title">Recommended actions</div>
+      <div className="response-section-title">Proposed actions</div>
       <div className="action-cards">
         <div className="action-card visible alert">
           <div className="action-card-header">
@@ -132,12 +132,21 @@ export function CommerceResponse1({ onExpandChart }) {
             <button className="action-btn-ghost">Add to backlog</button>
           </div>
         </div>
-      </div>
 
-      <div className="suggestions">
-        <button className="suggestion-pill visible">Build pricing + promo strategy</button>
-        <button className="suggestion-pill visible">Drill into return reasons for SKU-033</button>
-        <button className="suggestion-pill visible">Show inventory days of cover per SKU</button>
+        <div className="action-card visible done">
+          <div className="action-card-header">
+            <span className="platform-badge">Monitoring</span>
+            <span className="action-type-pill done">Ready</span>
+            <span className="action-title">Daily margin + returns watchlist</span>
+          </div>
+          <div className="action-description">
+            Watchlist is ready for the at-risk cluster (SKU-033, SKU-091) with daily checks on discount leakage and return rate spikes.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">Open watchlist</button>
+            <button className="action-btn-ghost">Dismiss</button>
+          </div>
+        </div>
       </div>
     </>
   )
@@ -201,10 +210,6 @@ export function CommerceResponse2() {
         </div>
       </div>
 
-      <div className="insight-callout">
-        Monitor daily: gross margin %, discount rate, return rate, conversion rate, and AOV. If CVR drops &gt;10% vs baseline within 48 hours, revert the sitewide discount change first.
-      </div>
-
       <div className="response-section-title">Implementation</div>
       <div className="action-cards">
         <div className="action-card visible alert">
@@ -235,12 +240,20 @@ export function CommerceResponse2() {
             <button className="action-btn-ghost">Schedule for later</button>
           </div>
         </div>
-      </div>
-
-      <div className="suggestions">
-        <button className="suggestion-pill visible">Build daily merchandising checklist</button>
-        <button className="suggestion-pill visible">Estimate margin recovery over 2 weeks</button>
-        <button className="suggestion-pill visible">Draft PDP copy for SKU-033</button>
+        <div className="action-card visible pending">
+          <div className="action-card-header">
+            <span className="platform-badge">Monitoring</span>
+            <span className="action-type-pill pending">Suggested</span>
+            <span className="action-title">Track CVR + margin daily with revert trigger</span>
+          </div>
+          <div className="action-description">
+            Monitor daily: gross margin %, discount rate, return rate, conversion rate, and AOV. If CVR drops &gt;10% vs baseline within 48 hours, revert the sitewide discount depth change first.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">Create monitoring alert</button>
+            <button className="action-btn-ghost">Later</button>
+          </div>
+        </div>
       </div>
     </>
   )
@@ -255,55 +268,83 @@ export function CommerceResponse3() {
         <p>
           Here's your daily merchandising workflow — ordered by decision priority so you always tackle the most time-sensitive signals first.
         </p>
+        <p>
+          Use the checklist below for daily execution, and run a weekly margin review every Monday to catch new at-risk SKUs early.
+        </p>
       </div>
 
-      <div className="response-section-title response-section-title-taken">Daily checklist (in order)</div>
-      <div className="auto-actions">
-        <div className="auto-action-item">
-          <div className="auto-action-text"><strong>1. Availability check</strong> — Stockouts or backorders on top 20 SKUs. Any in-stock → backordered transitions in the last 24h?</div>
-          <div className="auto-action-time">First</div>
-        </div>
-        <div className="auto-action-item">
-          <div className="auto-action-text"><strong>2. Margin pulse</strong> — Discount rate and promo leakage. Are any excluded SKUs appearing in promo-eligible segments?</div>
-          <div className="auto-action-time">Second</div>
-        </div>
-        <div className="auto-action-item">
-          <div className="auto-action-text"><strong>3. Returns spike check</strong> — Return rate by SKU vs 7-day average. Any SKU spiking &gt;2× baseline needs an immediate PDP review.</div>
-          <div className="auto-action-time">Third</div>
-        </div>
-        <div className="auto-action-item">
-          <div className="auto-action-text"><strong>4. Traffic + conversion breakpoints</strong> — Top landing pages by sessions, and where the funnel is leaking (PDP → ATC → checkout).</div>
-          <div className="auto-action-time">Fourth</div>
-        </div>
-        <div className="auto-action-item">
-          <div className="auto-action-text"><strong>5. Merch actions</strong> — Update homepage/collections for availability, reprioritize promoted bundles, adjust promo rules if margin is drifting.</div>
-          <div className="auto-action-time">Fifth</div>
+      <div className="data-block">
+        <div className="data-table-wrap">
+          <table className="data-table" aria-label="Daily merchandising checklist">
+            <thead>
+              <tr>
+                <th>Order</th>
+                <th>Check</th>
+                <th>What to do if it's red</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>Availability (top 20 SKUs)</td>
+                <td>Escalate stockouts/backorders; reprioritize collections and ads to in-stock bundles.</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>Margin pulse (discount leakage)</td>
+                <td>Verify exclusions; block promo stacking on at-risk SKUs; adjust sitewide discount depth.</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>Returns spike (SKU vs 7-day avg)</td>
+                <td>Audit PDP copy/fit guidance; investigate return reasons; pause promotion if necessary.</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>Traffic + funnel breakpoints</td>
+                <td>Find leak (PDP → ATC → checkout) and prioritize merchandising fixes over new promos.</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>Merch actions</td>
+                <td>Update homepage/collections for availability; reprioritize bundles; adjust promo rules.</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
-      <div className="response-section-title response-section-title-permission">Weekly extras (Mondays)</div>
-      <div className="intervention-item">
-        <div className="intervention-header">
-          Review SKU-level margin vs prior week
-          <span className="permission-pill">Weekly</span>
+      <div className="response-section-title">Proposed actions</div>
+      <div className="action-cards">
+        <div className="action-card visible pending">
+          <div className="action-card-header">
+            <span className="platform-badge">Weekly</span>
+            <span className="action-type-pill pending">Scheduled</span>
+            <span className="action-title">Run Monday margin review (top 30 SKUs)</span>
+          </div>
+          <div className="action-description">
+            Review discount depth, return rate, and COGS changes; flag new at-risk SKUs before they impact the week.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">Run margin report</button>
+            <button className="action-btn-ghost">Schedule for Monday</button>
+          </div>
         </div>
-        <div className="intervention-desc">
-          Full margin report across top 30 SKUs: discount depth, return rate, COGS changes. Flag any new at-risk SKUs before they become a problem.
-        </div>
-        <div className="action-btns">
-          <button className="action-btn-primary">Run margin report</button>
-          <button className="action-btn-ghost">Schedule for Monday</button>
-        </div>
-      </div>
 
-      <div className="insight-callout">
-        Pro tip: if any two of the five daily signals are red on the same day, escalate to a same-day team review — that combination is the strongest early predictor of a revenue-at-risk week.
-      </div>
-
-      <div className="suggestions">
-        <button className="suggestion-pill visible">Set up automated daily digest</button>
-        <button className="suggestion-pill visible">Build anomaly alerts for return rate</button>
-        <button className="suggestion-pill visible">Create next week's promo calendar</button>
+        <div className="action-card visible done">
+          <div className="action-card-header">
+            <span className="platform-badge">Automation</span>
+            <span className="action-type-pill done">Ready</span>
+            <span className="action-title">Daily digest + anomaly alerts</span>
+          </div>
+          <div className="action-description">
+            Template ready for a daily merchandising digest and alerts on return-rate anomalies so issues are caught before they stack up.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">Set up daily digest</button>
+            <button className="action-btn-ghost">Dismiss</button>
+          </div>
+        </div>
       </div>
     </>
   )

@@ -121,12 +121,21 @@ export function OpsResponse1({ onExpandChart }) {
             <button className="action-btn-ghost">View SKU list</button>
           </div>
         </div>
-      </div>
 
-      <div className="suggestions">
-        <button className="suggestion-pill visible">Build 10-day reorder + fulfillment plan</button>
-        <button className="suggestion-pill visible">Investigate return reasons for outerwear</button>
-        <button className="suggestion-pill visible">Compare carrier performance by zone</button>
+        <div className="action-card visible done">
+          <div className="action-card-header">
+            <span className="platform-badge">CX</span>
+            <span className="action-type-pill done">Ready</span>
+            <span className="action-title">Delay notification template</span>
+          </div>
+          <div className="action-description">
+            Draft customer messaging is ready for orders impacted by the backlog so CX can proactively protect CSAT while fulfillment catches up.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">Send draft</button>
+            <button className="action-btn-ghost">Dismiss</button>
+          </div>
+        </div>
       </div>
     </>
   )
@@ -220,12 +229,21 @@ export function OpsResponse2() {
             <button className="action-btn-ghost">Skip</button>
           </div>
         </div>
-      </div>
 
-      <div className="suggestions">
-        <button className="suggestion-pill visible">Draft leadership update</button>
-        <button className="suggestion-pill visible">Generate expedited PO drafts</button>
-        <button className="suggestion-pill visible">Set up Slack fulfillment bot</button>
+        <div className="action-card visible done">
+          <div className="action-card-header">
+            <span className="platform-badge">Routing</span>
+            <span className="action-type-pill done">Ready</span>
+            <span className="action-title">Escalation playbook + owners</span>
+          </div>
+          <div className="action-description">
+            Severity-based routing is ready (Inventory + Ops + CX). Includes a short playbook for what to do on stockout and SLA alerts.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">Configure routing</button>
+            <button className="action-btn-ghost">Dismiss</button>
+          </div>
+        </div>
       </div>
     </>
   )
@@ -241,56 +259,82 @@ export function OpsResponse3() {
           Here's the leadership update — concise, with the risks clearly stated, mitigations already underway, and the two items that need approval from leadership to execute fully.
         </p>
       </div>
+      <div className="response-section-title">Proposed actions</div>
+      <div className="action-cards">
+        <div className="action-card visible pending">
+          <div className="action-card-header">
+            <span className="platform-badge">Budget</span>
+            <span className="action-type-pill pending">Approval</span>
+            <span className="action-title">Approve expedited freight cost cap (+$3,200 this week)</span>
+          </div>
+          <div className="action-description">
+            Expedited POs carry a premium freight charge of ~$3,200 above standard. Estimated stockout cost on those 4 SKUs is $18k+ in lost revenue.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">Approve</button>
+            <button className="action-btn-ghost">Request more detail</button>
+          </div>
+        </div>
 
-      <div className="response-section-title response-section-title-taken">What we've done</div>
-      <div className="auto-actions">
-        <div className="auto-action-item">
-          <div className="auto-action-text">Placed expedited POs for 4 stockout-risk SKUs; expected receiving in 4–5 days.</div>
-          <div className="auto-action-time">Done</div>
+        <div className="action-card visible pending">
+          <div className="action-card-header">
+            <span className="platform-badge">Warehouse</span>
+            <span className="action-type-pill pending">Approval</span>
+            <span className="action-title">Approve temporary staffing for 3 days</span>
+          </div>
+          <div className="action-description">
+            Clearing the backlog and hitting SLA requires 2 additional picking shifts over the next 3 days (est. cost: $1,800).
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">Approve</button>
+            <button className="action-btn-ghost">Not now</button>
+          </div>
         </div>
-        <div className="auto-action-item">
-          <div className="auto-action-text">Triaged Saturday fulfillment backlog: prioritized premium orders, sent proactive delay notifications to 340 customers.</div>
-          <div className="auto-action-time">Done</div>
-        </div>
-        <div className="auto-action-item">
-          <div className="auto-action-text">Configured stockout forecast alert (&lt;7 days cover) and fulfillment SLA alert (&lt;87% on-time) for real-time monitoring.</div>
-          <div className="auto-action-time">Done</div>
-        </div>
-      </div>
 
-      <div className="response-section-title response-section-title-permission">What we need</div>
-      <div className="intervention-item">
-        <div className="intervention-header">
-          Approve expedited shipping cost cap (+$3,200 this week)
-          <span className="permission-pill">Approval</span>
+        <div className="action-card visible done">
+          <div className="action-card-header">
+            <span className="platform-badge">Inventory</span>
+            <span className="action-type-pill done">Completed</span>
+            <span className="action-title">Placed expedited POs for 4 stockout-risk SKUs</span>
+          </div>
+          <div className="action-description">
+            POs placed; expected receiving in 4–5 days with a reorder point increase for high-velocity Winter SKUs.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">View PO drafts</button>
+            <button className="action-btn-ghost">Dismiss</button>
+          </div>
         </div>
-        <div className="intervention-desc">
-          Expedited POs carry a premium freight charge of ~$3,200 above standard. The estimated cost of stockout on those 4 SKUs is $18k+ in lost revenue. The ROI is clear but we need budget sign-off.
-        </div>
-        <div className="action-btns">
-          <button className="action-btn-primary">Approve</button>
-          <button className="action-btn-ghost">Request more detail</button>
-        </div>
-      </div>
 
-      <div className="intervention-item">
-        <div className="intervention-header">
-          Approve temporary staffing for peak fulfillment (3 days)
-          <span className="permission-pill">Approval</span>
+        <div className="action-card visible done">
+          <div className="action-card-header">
+            <span className="platform-badge">Fulfillment</span>
+            <span className="action-type-pill done">Completed</span>
+            <span className="action-title">Cleared backlog triage + customer comms</span>
+          </div>
+          <div className="action-description">
+            Prioritized premium orders and sent proactive delay notifications to 340 customers to protect CSAT while backlog clears.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">Open fulfillment log</button>
+            <button className="action-btn-ghost">Dismiss</button>
+          </div>
         </div>
-        <div className="intervention-desc">
-          Clearing the backlog and hitting SLA through the weekend requires 2 additional picking shifts over the next 3 days. Estimated cost: $1,800. Without this, on-time rate stays below target through Friday.
-        </div>
-        <div className="action-btns">
-          <button className="action-btn-primary">Approve</button>
-          <button className="action-btn-ghost">Not now</button>
-        </div>
-      </div>
 
-      <div className="suggestions">
-        <button className="suggestion-pill visible">Schedule fulfillment review for Friday</button>
-        <button className="suggestion-pill visible">Generate carrier rate comparison</button>
-        <button className="suggestion-pill visible">Draft customer delay email template</button>
+        <div className="action-card visible done">
+          <div className="action-card-header">
+            <span className="platform-badge">Alerts</span>
+            <span className="action-type-pill done">Completed</span>
+            <span className="action-title">Configured stockout + SLA alerts</span>
+          </div>
+          <div className="action-description">
+            Stockout forecast alert (&lt;7 days cover) and fulfillment SLA alert (&lt;87% on-time) routed to Ops and CX for real-time monitoring.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">View alert rules</button>
+            <button className="action-btn-ghost">Dismiss</button>
+          </div>
+        </div>
       </div>
     </>
   )

@@ -12,10 +12,17 @@ import { buildRoleSession } from './constants/roleSessions'
 
 export default function App() {
   const THEME_STORAGE_KEY = 'nexus-theme'
+  const CHAT_SESSIONS_STORAGE_KEY = 'nexus-chat-sessions-v1'
+  const ACTIVE_CHAT_SESSION_STORAGE_KEY = 'nexus-active-chat-session-v1'
   const [appStep, setAppStep] = useState('login')
   const [userProfile, setUserProfile] = useState(null)
 
   const [activeConversationId, setActiveConversationId] = useState(null)
+  const [activeChatSessionId, setActiveChatSessionId]  = useState(() => {
+    if (typeof window === 'undefined') return null
+    const stored = window.localStorage.getItem(ACTIVE_CHAT_SESSION_STORAGE_KEY)
+    return stored ? stored : null
+  })
   const [sessionName, setSessionName]              = useState('New conversation')
   const [messages, setMessages]                    = useState([])
   const [completedActions, setCompletedActions]    = useState([])
@@ -32,7 +39,49 @@ export default function App() {
     return stored === 'dark' || stored === 'light' || stored === 'system' ? stored : 'light'
   })
 
+  const [chatSessions, setChatSessions] = useState(() => {
+    if (typeof window === 'undefined') return []
+    try {
+      const raw = window.localStorage.getItem(CHAT_SESSIONS_STORAGE_KEY)
+      const parsed = raw ? JSON.parse(raw) : []
+      return Array.isArray(parsed) ? parsed : []
+    } catch {
+      return []
+    }
+  })
+
   const suppressContextPanelAutoOpenRef = useRef(false)
+  const activeConversationIdRef = useRef(activeConversationId)
+  const activeChatSessionIdRef = useRef(activeChatSessionId)
+
+  useEffect(() => { activeConversationIdRef.current = activeConversationId }, [activeConversationId])
+  useEffect(() => { activeChatSessionIdRef.current = activeChatSessionId }, [activeChatSessionId])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    try {
+      window.localStorage.setItem(CHAT_SESSIONS_STORAGE_KEY, JSON.stringify(chatSessions))
+    } catch {
+      // ignore storage failures (private mode, quotas, etc.)
+    }
+  }, [chatSessions])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    try {
+      if (activeChatSessionId) window.localStorage.setItem(ACTIVE_CHAT_SESSION_STORAGE_KEY, activeChatSessionId)
+      else window.localStorage.removeItem(ACTIVE_CHAT_SESSION_STORAGE_KEY)
+    } catch {
+      // ignore
+    }
+  }, [activeChatSessionId])
+
+  useEffect(() => {
+    if (!activeChatSessionId) return
+    const exists = chatSessions.some(s => s?.id === activeChatSessionId)
+    if (exists) return
+    setActiveChatSessionId(null)
+  }, [activeChatSessionId, chatSessions])
 
   const openContextPanel = useCallback(() => {
     suppressContextPanelAutoOpenRef.current = false
@@ -85,6 +134,11 @@ export default function App() {
     return compact.length <= 38 ? compact : `${compact.slice(0, 38)}…`
   }, [])
 
+  const createChatSessionId = useCallback(() => {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') return crypto.randomUUID()
+    return `${Date.now()}-${Math.random().toString(16).slice(2)}`
+  }, [])
+
   const addCompletedAction = useCallback((text) => {
     const trimmed = String(text || '').trim()
     if (!trimmed) return
@@ -127,6 +181,7 @@ export default function App() {
   const startConversation = useCallback((id) => {
     clearTimers()
     setActiveConversationId(id)
+    setActiveChatSessionId(null)
     const c = CONVERSATIONS[id]
     setSessionName(c?.name || 'Conversation')
     setMessages([
@@ -143,6 +198,26 @@ export default function App() {
     setGuidedPrompt(null)
     setInputValue('')
   }, [clearTimers, getTimeLabel])
+
+  const openChatSession = useCallback((sessionId) => {
+    const session = chatSessions.find(s => s?.id === sessionId)
+    if (!session) return
+
+    clearTimers()
+    setActiveConversationId(null)
+    setActiveChatSessionId(sessionId)
+    setSessionName(session?.title || 'Conversation')
+    setMessages(Array.isArray(session?.messages) ? session.messages : [])
+    setShowConversation(true)
+    suppressContextPanelAutoOpenRef.current = false
+    setContextPanelOpen(false)
+
+    guidedSubmittedRef.current = false
+    guidedSessionRef.current = null
+    guidedStepIndexRef.current = 0
+    setGuidedPrompt(null)
+    setInputValue('')
+  }, [chatSessions, clearTimers])
 
   useEffect(() => {
     if (!guidedPrompt) return
@@ -180,9 +255,13 @@ export default function App() {
         delay(() => {
           setMessages(prev => [
             ...prev.filter(m => m.type !== 'trace'),
-            step.ai?.templateId != null
-              ? { type: 'ai', templateId: step.ai.templateId }
-              : { type: 'ai', text: step.ai?.text || "Got it — I’m pulling the latest across your connected sources and will summarize what matters." },
+            session?.category
+              ? { type: 'ai', roleCategory: session.category, roleStepIndex: stepIndex, text: step.ai?.text }
+              : (
+                step.ai?.templateId != null
+                  ? { type: 'ai', templateId: step.ai.templateId }
+                  : { type: 'ai', text: step.ai?.text || "Got it — I’m pulling the latest across your connected sources and will summarize what matters." }
+              ),
           ])
           delay(() => {
             if (!suppressContextPanelAutoOpenRef.current) openContextPanel()
@@ -211,9 +290,35 @@ export default function App() {
     suppressContextPanelAutoOpenRef.current = false
     setShowConversation(true)
 
-    if (messages.length === 0) setSessionName(getSessionTitle(trimmed))
-    setActiveConversationId(null)
-    setMessages(prev => [...prev, { type: 'user', text: trimmed, time: getTimeLabel() }])
+    const now = Date.now()
+    const userMessage = { type: 'user', text: trimmed, time: getTimeLabel() }
+
+    let sessionId = activeChatSessionIdRef.current
+
+    if (!sessionId) {
+      sessionId = createChatSessionId()
+      const inferredTitle = (messages.length > 0 && sessionName && sessionName !== 'New conversation')
+        ? sessionName
+        : getSessionTitle(trimmed)
+      const seeded = [...(Array.isArray(messages) ? messages : []), userMessage]
+
+      setActiveConversationId(null)
+      setActiveChatSessionId(sessionId)
+      setSessionName(inferredTitle)
+      setMessages(seeded)
+      setChatSessions(prev => ([
+        { id: sessionId, title: inferredTitle, messages: seeded, createdAt: now, updatedAt: now },
+        ...(Array.isArray(prev) ? prev : []),
+      ]))
+    } else {
+      setActiveConversationId(null)
+      setMessages(prev => [...prev, userMessage])
+      setChatSessions(prev => (Array.isArray(prev) ? prev : []).map(s => (
+        s?.id === sessionId
+          ? { ...s, messages: [...(Array.isArray(s.messages) ? s.messages : []), userMessage], updatedAt: now }
+          : s
+      )))
+    }
     setInputValue('')
 
     const simulated = [
@@ -225,15 +330,22 @@ export default function App() {
     queueCompletedActions(simulated, 200)
 
     delay(() => {
-      setMessages(prev => [
-        ...prev,
-        {
-          type: 'ai',
-          text: "Got it — I’m pulling the latest across your connected sources and will summarize what matters.",
-        },
-      ])
+      const aiMessage = {
+        type: 'ai',
+        text: "Got it — I’m pulling the latest across your connected sources and will summarize what matters.",
+      }
+
+      setChatSessions(prev => (Array.isArray(prev) ? prev : []).map(s => (
+        s?.id === sessionId
+          ? { ...s, messages: [...(Array.isArray(s.messages) ? s.messages : []), aiMessage], updatedAt: Date.now() }
+          : s
+      )))
+
+      if (activeChatSessionIdRef.current === sessionId && activeConversationIdRef.current == null) {
+        setMessages(prev => [...prev, aiMessage])
+      }
     }, 450)
-  }, [clearTimers, delay, getSessionTitle, getTimeLabel, guidedPrompt, inputValue, messages.length, queueCompletedActions])
+  }, [clearTimers, createChatSessionId, delay, getSessionTitle, getTimeLabel, guidedPrompt, inputValue, messages, queueCompletedActions, sessionName])
 
   const expandChart = useCallback((key) => {
     setChartOverlayKey(key)
@@ -244,6 +356,7 @@ export default function App() {
   const resetToEmpty = useCallback(() => {
     clearTimers()
     setActiveConversationId(null)
+    setActiveChatSessionId(null)
     setSessionName('New conversation')
     setMessages([])
     setCompletedActions([])
@@ -264,6 +377,17 @@ export default function App() {
     if (guidedSessionRef.current) return
     primeRoleSession()
   }, [appStep, messages.length, primeRoleSession, showConversation])
+
+  useEffect(() => {
+    if (appStep !== 'app') return
+    if (showConversation) return
+    if (messages.length > 0) return
+    if (activeConversationId != null) return
+    if (!activeChatSessionId) return
+    const session = chatSessions.find(s => s?.id === activeChatSessionId)
+    if (!session) return
+    openChatSession(activeChatSessionId)
+  }, [activeChatSessionId, activeConversationId, appStep, chatSessions, messages.length, openChatSession, showConversation])
 
   // ── Keyboard shortcuts ────────────────────────────────────────
   useEffect(() => {
@@ -345,6 +469,9 @@ export default function App() {
           onSettingsOpen={() => setSettingsOpen(true)}
           onOpenConversation={startConversation}
           activeConversationId={activeConversationId}
+          chatSessions={chatSessions}
+          activeChatSessionId={activeChatSessionId}
+          onOpenChatSession={openChatSession}
         />
         <CanvasArea
           showConversation={showConversation}

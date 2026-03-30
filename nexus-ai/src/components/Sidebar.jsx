@@ -1,4 +1,4 @@
-const HISTORY = [
+const TEMPLATE_HISTORY = [
   { id: 1, conversationId: 1, name: 'Blended CAC vs LTV Analysis', time: '2m',  section: 'Today' },
   { id: 2, conversationId: 2, name: 'Profit Dip Root Cause',        time: '18m', section: 'Today' },
   { id: 3, conversationId: 3, name: 'Winter Collection Reorder',     time: '1h',  section: 'Today' },
@@ -6,7 +6,57 @@ const HISTORY = [
   { id: 5, conversationId: null, name: 'Q3 Revenue Attribution',     time: '2d',  section: 'Yesterday' },
 ]
 
-export default function Sidebar({ activeConversationId, workspaceName, onOpenConversation, onReset, onSettingsOpen }) {
+const getRelativeTimeLabel = (updatedAt) => {
+  const now = Date.now()
+  const ms = Math.max(0, now - Number(updatedAt || now))
+  const mins = Math.floor(ms / 60000)
+  if (mins <= 0) return 'now'
+  if (mins < 60) return `${mins}m`
+  const hours = Math.floor(mins / 60)
+  if (hours < 24) return `${hours}h`
+  const days = Math.floor(hours / 24)
+  return `${days}d`
+}
+
+const getHistorySection = (updatedAt) => {
+  const date = new Date(Number(updatedAt))
+  if (Number.isNaN(date.getTime())) return 'Earlier'
+  const today = new Date()
+  const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+  const startOfYesterday = new Date(startOfToday.getTime() - 24 * 60 * 60 * 1000)
+  if (date >= startOfToday) return 'Today'
+  if (date >= startOfYesterday) return 'Yesterday'
+  return 'Earlier'
+}
+
+export default function Sidebar({
+  activeConversationId,
+  activeChatSessionId,
+  chatSessions,
+  workspaceName,
+  onOpenConversation,
+  onOpenChatSession,
+  onReset,
+  onSettingsOpen,
+}) {
+  const sessionHistory = (Array.isArray(chatSessions) ? chatSessions : [])
+    .slice()
+    .sort((a, b) => Number(b?.updatedAt || 0) - Number(a?.updatedAt || 0))
+    .map(s => ({
+      id: s.id,
+      kind: 'session',
+      name: s.title || 'Conversation',
+      time: getRelativeTimeLabel(s.updatedAt),
+      section: getHistorySection(s.updatedAt),
+    }))
+
+  const history = [
+    ...sessionHistory,
+    ...TEMPLATE_HISTORY.map(h => ({ ...h, kind: 'template' })),
+  ]
+
+  const sections = ['Today', 'Yesterday', 'Earlier'].filter(section => history.some(h => h.section === section))
+
   return (
     <aside className="sidebar">
       <div className="sidebar-top">
@@ -19,16 +69,31 @@ export default function Sidebar({ activeConversationId, workspaceName, onOpenCon
       </div>
 
       <div className="sidebar-history">
-        {['Today', 'Yesterday'].map(section => (
+        {sections.map(section => (
           <div key={section}>
             <div className="history-section-label">{section}</div>
-            {HISTORY.filter(h => h.section === section).map(item => (
+            {history.filter(h => h.section === section).map(item => (
               <div
                 key={item.id}
-                className={`history-item${item.conversationId != null && activeConversationId === item.conversationId ? ' active' : ''}`}
-                onClick={() => item.conversationId && onOpenConversation?.(item.conversationId)}
-                role={item.conversationId ? 'button' : undefined}
-                tabIndex={item.conversationId ? 0 : -1}
+                className={`history-item${
+                  item.kind === 'template' && item.conversationId != null && activeConversationId === item.conversationId
+                    ? ' active'
+                    : item.kind === 'session' && activeChatSessionId && activeChatSessionId === item.id
+                      ? ' active'
+                      : ''
+                }`}
+                onClick={() => {
+                  if (item.kind === 'template' && item.conversationId) onOpenConversation?.(item.conversationId)
+                  if (item.kind === 'session') onOpenChatSession?.(item.id)
+                }}
+                onKeyDown={(e) => {
+                  if (e.key !== 'Enter' && e.key !== ' ') return
+                  e.preventDefault()
+                  if (item.kind === 'template' && item.conversationId) onOpenConversation?.(item.conversationId)
+                  if (item.kind === 'session') onOpenChatSession?.(item.id)
+                }}
+                role={item.kind === 'template' ? (item.conversationId ? 'button' : undefined) : 'button'}
+                tabIndex={item.kind === 'template' ? (item.conversationId ? 0 : -1) : 0}
               >
                 <div className="history-dot" />
                 <div className="history-name">{item.name}</div>
