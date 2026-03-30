@@ -1,5 +1,26 @@
 import { InlineChart } from './shared'
 
+const FORECAST_CONFIG = {
+  type: 'line',
+  data: {
+    labels: ['D+1', 'D+2', 'D+3', 'D+4', 'D+5', 'D+6', 'D+7'],
+    datasets: [
+      {
+        label: 'Projected demand',
+        data: [92, 97, 101, 126, 141, 134, 118],
+        borderColor: '#E8C547',
+        backgroundColor: 'rgba(232,197,71,0.18)',
+        tension: 0.25,
+        fill: true,
+      },
+    ],
+  },
+  options: {
+    scales: { y: { beginAtZero: false } },
+  },
+}
+
+
 export default function Response3({ onExpandChart }) {
   return (
     <>
@@ -16,27 +37,7 @@ export default function Response3({ onExpandChart }) {
         <InlineChart
           title="Projected demand index (next 7 days)"
           onExpand={() => onExpandChart?.('forecast')}
-          buildConfig={() => ({
-            type: 'line',
-            data: {
-              labels: ['D+1', 'D+2', 'D+3', 'D+4', 'D+5', 'D+6', 'D+7'],
-              datasets: [
-                {
-                  label: 'Projected demand',
-                  data: [92, 97, 101, 126, 141, 134, 118],
-                  borderColor: '#E8C547',
-                  backgroundColor: 'rgba(232,197,71,0.18)',
-                  tension: 0.25,
-                  fill: true,
-                },
-              ],
-            },
-            options: {
-              responsive: true,
-              plugins: { legend: { display: false } },
-              scales: { y: { beginAtZero: false } },
-            },
-          })}
+          config={FORECAST_CONFIG}
         />
       </div>
 

@@ -597,13 +597,16 @@ input, textarea { font-family: inherit; }
 /* Chart Container */
 .chart-container {
   position: relative;
-  background: var(--bg-base);
+  background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
-  padding: 14px;
-  max-width: 560px;
+  border-radius: 10px;
+  box-shadow: var(--shadow-card);
+  padding: 14px 14px 12px;
+  width: 100%;
+  max-width: 680px;
 }
 .chart-canvas-wrap {
-  height: 140px;
+  height: 180px;
 }
 .chart-canvas-wrap canvas {
   display: block;
@@ -1229,9 +1232,19 @@ input, textarea { font-family: inherit; }
 .chart-overlay-inner {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
-  padding: 24px;
-  width: 70vw;
-  max-width: 700px;
+  border-radius: 12px;
+  box-shadow: var(--shadow-overlay);
+  padding: 22px;
+  width: min(900px, 92vw);
+  max-width: 900px;
+}
+.chart-overlay-canvas-wrap {
+  height: min(62vh, 520px);
+}
+.chart-overlay-canvas-wrap canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
 }
 .chart-overlay-close {
   position: absolute;
@@ -1247,7 +1260,9 @@ input, textarea { font-family: inherit; }
   cursor: pointer;
   background: var(--bg-elevated);
   border-radius: 4px;
+  transition: background 150ms, color 150ms;
 }
+.chart-overlay-close:hover { background: var(--bg-surface); color: var(--text-primary); }
 
 /* Section titles within assistant response */
 .response-section-title {

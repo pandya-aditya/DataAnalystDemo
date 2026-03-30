@@ -1,5 +1,7 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Chart from 'chart.js/auto'
+import { withChartTheme } from './chartTheme'
+
 
 function getOverlayChartConfig(chartKey) {
   if (chartKey === 'waterfall') {
@@ -17,10 +19,240 @@ function getOverlayChartConfig(chartKey) {
         ],
       },
       options: {
-        responsive: true,
         plugins: { legend: { display: false } },
         scales: {
           y: { ticks: { callback: (v) => `$${v / 1000}k` } },
+        },
+      },
+    }
+  }
+
+  if (chartKey === 'latency') {
+    return {
+      type: 'line',
+      data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [
+          {
+            label: 'p50 (ms)',
+            data: [182, 178, 191, 204, 198, 215, 211],
+            borderColor: '#52C97A',
+            tension: 0.3,
+            fill: false,
+          },
+          {
+            label: 'p95 (ms)',
+            data: [410, 398, 461, 589, 572, 644, 631],
+            borderColor: '#E05252',
+            tension: 0.3,
+            fill: false,
+          },
+        ],
+      },
+      options: {
+        scales: {
+          y: { ticks: { callback: (v) => `${v}ms` } },
+        },
+      },
+    }
+  }
+
+  if (chartKey === 'cac_trend') {
+    return {
+      type: 'line',
+      data: {
+        labels: ['D-7', 'D-6', 'D-5', 'D-4', 'D-3', 'D-2', 'D-1'],
+        datasets: [
+          {
+            label: 'Meta CAC',
+            data: [29, 27, 30, 28, 26, 25, 28],
+            borderColor: '#52C97A',
+            tension: 0.3,
+            fill: false,
+          },
+          {
+            label: 'Google CAC',
+            data: [41, 44, 43, 48, 46, 45, 44],
+            borderColor: '#E8C547',
+            tension: 0.3,
+            fill: false,
+          },
+          {
+            label: 'TikTok CAC',
+            data: [52, 55, 59, 62, 65, 68, 72],
+            borderColor: '#E05252',
+            tension: 0.3,
+            fill: false,
+          },
+        ],
+      },
+      options: {
+        scales: { y: { ticks: { callback: (v) => `$${v}` } } },
+      },
+    }
+  }
+
+  if (chartKey === 'margin') {
+    return {
+      type: 'bar',
+      data: {
+        labels: ['SKU-104', 'SKU-218', 'SKU-033', 'SKU-091', 'SKU-176'],
+        datasets: [
+          {
+            label: 'Gross Margin %',
+            data: [18, 14, 11, 9, 6],
+            backgroundColor: ['#E8C547', '#E8C547', '#E05252', '#E05252', '#E05252'],
+            borderRadius: 6,
+          },
+        ],
+      },
+      options: {
+        indexAxis: 'y',
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { callback: (v) => `${v}%` }, max: 35 },
+        },
+      },
+    }
+  }
+
+  if (chartKey === 'pipeline') {
+    return {
+      type: 'bar',
+      data: {
+        labels: ['Discovery', 'Qualification', 'Demo/Eval', 'Proposal', 'Negotiation', 'Closed'],
+        datasets: [
+          {
+            label: 'Deal count',
+            data: [24, 18, 14, 9, 5, 3],
+            backgroundColor: ['#52C97A', '#52C97A', '#E8C547', '#E8C547', '#E05252', '#52C97A'],
+            borderRadius: 6,
+          },
+        ],
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { ticks: { callback: (v) => `${v}` } },
+        },
+      },
+    }
+  }
+
+  if (chartKey === 'fulfillment') {
+    return {
+      type: 'bar',
+      data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [
+          {
+            label: 'On-time %',
+            data: [96, 94, 91, 88, 85, 79, 82],
+            backgroundColor: (ctx) => {
+              const v = ctx.raw
+              return v >= 92 ? '#52C97A' : v >= 86 ? '#E8C547' : '#E05252'
+            },
+            borderRadius: 6,
+          },
+        ],
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { ticks: { callback: (v) => `${v}%` }, min: 70, max: 100 },
+        },
+      },
+    }
+  }
+
+  if (chartKey === 'fraud_trends') {
+    return {
+      type: 'line',
+      data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [
+          {
+            label: 'Chargeback rate (%)',
+            data: [0.41, 0.44, 0.48, 0.61, 0.74, 0.89, 0.82],
+            borderColor: '#E05252',
+            tension: 0.3,
+            fill: false,
+          },
+          {
+            label: 'Manual review rate (%)',
+            data: [2.1, 2.3, 2.8, 3.4, 4.1, 4.9, 4.6],
+            borderColor: '#E8C547',
+            tension: 0.3,
+            fill: false,
+          },
+          {
+            label: 'Approval rate (%)',
+            data: [97.2, 97.1, 96.8, 96.4, 95.9, 95.3, 95.5],
+            borderColor: '#52C97A',
+            tension: 0.3,
+            fill: false,
+          },
+        ],
+      },
+      options: {
+        scales: { y: { ticks: { callback: (v) => `${v}%` } } },
+      },
+    }
+  }
+
+  if (chartKey === 'retention') {
+    return {
+      type: 'line',
+      data: {
+        labels: ['Week 0', 'Week 1', 'Week 2', 'Week 4', 'Week 8', 'Week 12'],
+        datasets: [
+          {
+            label: 'Jan cohort',
+            data: [100, 62, 48, 39, 31, 27],
+            borderColor: '#52C97A',
+            tension: 0.3,
+            fill: false,
+          },
+          {
+            label: 'Feb cohort',
+            data: [100, 58, 44, 36, 29, null],
+            borderColor: '#E8C547',
+            tension: 0.3,
+            fill: false,
+          },
+        ],
+      },
+      options: {
+        scales: {
+          y: { ticks: { callback: (v) => `${v}%` }, max: 110 },
+        },
+      },
+    }
+  }
+
+  if (chartKey === 'funnel') {
+    return {
+      type: 'bar',
+      data: {
+        labels: ['Cart', 'Checkout Start', 'Shipping Step', 'Payment Step', 'Order Complete'],
+        datasets: [
+          {
+            label: 'Control (%)',
+            data: [100, 74, 51, 38, 29],
+            backgroundColor: 'rgba(232,197,71,0.5)',
+            borderRadius: 6,
+          },
+          {
+            label: 'Treatment Target (%)',
+            data: [100, 74, 62, 50, 38],
+            backgroundColor: 'rgba(82,201,122,0.7)',
+            borderRadius: 6,
+          },
+        ],
+      },
+      options: {
+        scales: {
+          y: { ticks: { callback: (v) => `${v}%` }, max: 110 },
         },
       },
     }
@@ -43,7 +275,6 @@ function getOverlayChartConfig(chartKey) {
         ],
       },
       options: {
-        responsive: true,
         plugins: { legend: { display: false } },
         scales: { y: { beginAtZero: false } },
       },
@@ -55,13 +286,22 @@ function getOverlayChartConfig(chartKey) {
 
 export default function ChartOverlay({ open, onClose, chartKey }) {
   const chartInstanceRef = useRef(null)
+  const canvasRef = useRef(null)
+  const [themeVersion, setThemeVersion] = useState(0)
+
+  useEffect(() => {
+    const root = document.documentElement
+    const obs = new MutationObserver(() => setThemeVersion(v => v + 1))
+    obs.observe(root, { attributes: true, attributeFilter: ['data-theme'] })
+    return () => obs.disconnect()
+  }, [])
 
   useEffect(() => {
     if (!open) return
-    const canvas = document.getElementById('overlayChart')
+    const canvas = canvasRef.current
     if (!canvas) return
 
-    const config = getOverlayChartConfig(chartKey)
+    const config = withChartTheme(getOverlayChartConfig(chartKey), { variant: 'overlay' })
     if (!config) return
 
     if (chartInstanceRef.current) chartInstanceRef.current.destroy()
@@ -73,12 +313,14 @@ export default function ChartOverlay({ open, onClose, chartKey }) {
         chartInstanceRef.current = null
       }
     }
-  }, [open, chartKey])
+  }, [open, chartKey, themeVersion])
 
   return (
     <div className={`chart-overlay${open ? ' open' : ''}`} onClick={onClose}>
       <div className="chart-overlay-inner" onClick={e => e.stopPropagation()}>
-        <canvas id="overlayChart" width="640" height="320" aria-hidden="true" />
+        <div className="chart-overlay-canvas-wrap">
+          <canvas ref={canvasRef} aria-hidden="true" />
+        </div>
       </div>
       <button type="button" className="chart-overlay-close" onClick={onClose} title="Close chart overlay" aria-label="Close chart overlay">
         ✕

@@ -1,5 +1,26 @@
 import { InlineChart } from './shared'
 
+const WATERFALL_CONFIG = {
+  type: 'bar',
+  data: {
+    labels: ['Gross', 'Refunds', 'Shipping', 'Fees', 'Net'],
+    datasets: [
+      {
+        label: 'USD',
+        data: [124000, -9200, -14800, -5300, 94700],
+        backgroundColor: ['#52C97A', '#E05252', '#E8C547', '#E8C547', '#52C97A'],
+        borderRadius: 4,
+      },
+    ],
+  },
+  options: {
+    scales: {
+      y: { ticks: { callback: (v) => `$${v / 1000}k` } },
+    },
+  },
+}
+
+
 export default function Response2({ onExpandChart }) {
   return (
     <>
@@ -16,27 +37,7 @@ export default function Response2({ onExpandChart }) {
         <InlineChart
           title="Profit bridge (30d vs prior)"
           onExpand={() => onExpandChart?.('waterfall')}
-          buildConfig={() => ({
-            type: 'bar',
-            data: {
-              labels: ['Gross', 'Refunds', 'Shipping', 'Fees', 'Net'],
-              datasets: [
-                {
-                  label: 'USD',
-                  data: [124000, -9200, -14800, -5300, 94700],
-                  backgroundColor: ['#52C97A', '#E05252', '#E8C547', '#E8C547', '#52C97A'],
-                  borderRadius: 4,
-                },
-              ],
-            },
-            options: {
-              responsive: true,
-              plugins: { legend: { display: false } },
-              scales: {
-                y: { ticks: { callback: (v) => `$${v / 1000}k` } },
-              },
-            },
-          })}
+          config={WATERFALL_CONFIG}
         />
       </div>
 

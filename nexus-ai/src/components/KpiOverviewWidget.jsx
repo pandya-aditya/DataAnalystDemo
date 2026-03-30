@@ -96,12 +96,9 @@ function generateKpiOverview() {
 
 export default function KpiOverviewWidget() {
   const [open, setOpen] = useState(false)
-  const [overview, setOverview] = useState(() => generateKpiOverview())
-
-  const openAndRefresh = () => {
-    setOverview(generateKpiOverview())
-    setOpen(true)
-  }
+  const [overview] = useState(() => generateKpiOverview())
+  
+  const openAndRefresh = () => setOpen(true)
 
   useEffect(() => {
     if (!open) return
