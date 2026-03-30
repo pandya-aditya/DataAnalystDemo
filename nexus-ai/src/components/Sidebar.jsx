@@ -25,7 +25,7 @@ export default function Sidebar({ activeConversationId, workspaceName, onOpenCon
             {HISTORY.filter(h => h.section === section).map(item => (
               <div
                 key={item.id}
-                className={`history-item${activeConversationId === item.conversationId ? ' active' : ''}`}
+                className={`history-item${item.conversationId != null && activeConversationId === item.conversationId ? ' active' : ''}`}
                 onClick={() => item.conversationId && onOpenConversation?.(item.conversationId)}
                 role={item.conversationId ? 'button' : undefined}
                 tabIndex={item.conversationId ? 0 : -1}

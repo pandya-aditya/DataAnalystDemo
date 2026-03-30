@@ -8,17 +8,17 @@ import ChartOverlay from './components/ChartOverlay'
 import LoginPage from './components/Loginpage'
 import OnboardingPage from './components/OnboardingPage'
 import { CONVERSATIONS } from './constants/data'
+import { buildRoleSession } from './constants/roleSessions'
 
 export default function App() {
   const THEME_STORAGE_KEY = 'nexus-theme'
   const [appStep, setAppStep] = useState('login')
   const [userProfile, setUserProfile] = useState(null)
 
-  // ── Core state ──────────────────────────────────────────────
   const [activeConversationId, setActiveConversationId] = useState(null)
   const [sessionName, setSessionName]              = useState('New conversation')
-  const [messages, setMessages]                    = useState([])      // array of { type, ...props }
-  const [completedActions, setCompletedActions]    = useState([])      // array of { id, text, time }
+  const [messages, setMessages]                    = useState([])
+  const [completedActions, setCompletedActions]    = useState([])
   const [inputValue, setInputValue]                = useState('')
   const [guidedPrompt, setGuidedPrompt]            = useState(null)
   const [showConversation, setShowConversation]    = useState(false)
@@ -32,8 +32,6 @@ export default function App() {
     return stored === 'dark' || stored === 'light' || stored === 'system' ? stored : 'light'
   })
 
-  // When true, the panel will NOT be auto-opened by assistant updates.
-  // (So user toggling it closed won't get overridden mid-run.)
   const suppressContextPanelAutoOpenRef = useRef(false)
 
   const openContextPanel = useCallback(() => {
@@ -72,6 +70,8 @@ export default function App() {
   }, [])
 
   const guidedSubmittedRef = useRef(false)
+  const guidedSessionRef = useRef(null)
+  const guidedStepIndexRef = useRef(0)
   const actionIdRef = useRef(0)
 
   const getTimeLabel = useCallback(() => {
@@ -109,57 +109,98 @@ export default function App() {
     setInputValue(guidedPrompt.slice(0, nextLen))
   }, [guidedPrompt])
 
+  const primeRoleSession = useCallback(() => {
+    if (!userProfile?.role) {
+      guidedSessionRef.current = null
+      guidedStepIndexRef.current = 0
+      guidedSubmittedRef.current = false
+      setGuidedPrompt(null)
+      return
+    }
+    const session = buildRoleSession(userProfile)
+    guidedSessionRef.current = session
+    guidedStepIndexRef.current = 0
+    guidedSubmittedRef.current = false
+    setGuidedPrompt(session?.steps?.[0]?.prompt || null)
+  }, [userProfile])
+
   const startConversation = useCallback((id) => {
     clearTimers()
     setActiveConversationId(id)
-    setSessionName(CONVERSATIONS[id].name)
-    setMessages([])
-    setCompletedActions([])
+    const c = CONVERSATIONS[id]
+    setSessionName(c?.name || 'Conversation')
+    setMessages([
+      { type: 'user', text: c?.prompt || '', time: getTimeLabel() },
+      { type: 'ai', templateId: id },
+    ])
     setShowConversation(true)
     suppressContextPanelAutoOpenRef.current = false
     setContextPanelOpen(false)
 
     guidedSubmittedRef.current = false
-    setGuidedPrompt(CONVERSATIONS[id].prompt)
+    guidedSessionRef.current = null
+    guidedStepIndexRef.current = 0
+    setGuidedPrompt(null)
     setInputValue('')
-  }, [clearTimers])
+  }, [clearTimers, getTimeLabel])
 
   useEffect(() => {
     if (!guidedPrompt) return
-    if (activeConversationId == null) return
     if (guidedSubmittedRef.current) return
     if (inputValue.length < guidedPrompt.length) return
 
     guidedSubmittedRef.current = true
-    const id = activeConversationId
-    const c = CONVERSATIONS[id]
+    const session = guidedSessionRef.current
+    const stepIndex = guidedStepIndexRef.current
+    const step = session?.steps?.[stepIndex]
     setGuidedPrompt(null)
 
+    if (!step) return
+
+    clearTimers()
+    setActiveConversationId(null)
+    suppressContextPanelAutoOpenRef.current = false
+    setShowConversation(true)
+
+    if (messages.length === 0) setSessionName(session?.title || getSessionTitle(step.prompt))
+    setInputValue('')
+    setMessages(prev => [...prev, { type: 'user', text: step.prompt, time: getTimeLabel() }])
+
     delay(() => {
-      setInputValue('')
-      setMessages([{ type: 'user', text: c.prompt, time: getTimeLabel() }])
+      const traces = Array.isArray(step.traces) ? step.traces : []
+      if (traces.length > 0) {
+        setMessages(prev => [...prev, { type: 'trace', lines: traces, collapsing: false }])
+        queueCompletedActions(traces)
+      }
 
+      const perLine = 280
+      const totalTrace = traces.length * perLine + 600
       delay(() => {
-        setMessages(prev => [...prev, { type: 'trace', lines: c.traces, collapsing: false }])
-        queueCompletedActions(c.traces)
-
-        const perLine = 280
-        const totalTrace = c.traces.length * perLine + 600
+        setMessages(prev => prev.map(m => m.type === 'trace' ? { ...m, collapsing: true } : m))
         delay(() => {
-          setMessages(prev => prev.map(m => m.type === 'trace' ? { ...m, collapsing: true } : m))
+          setMessages(prev => [
+            ...prev.filter(m => m.type !== 'trace'),
+            step.ai?.templateId != null
+              ? { type: 'ai', templateId: step.ai.templateId }
+              : { type: 'ai', text: step.ai?.text || "Got it — I’m pulling the latest across your connected sources and will summarize what matters." },
+          ])
           delay(() => {
-            setMessages(prev => [
-              ...prev.filter(m => m.type !== 'trace'),
-              { type: 'ai', templateId: id }
-            ])
-            delay(() => {
-              if (!suppressContextPanelAutoOpenRef.current) openContextPanel()
-            }, 800)
-          }, 350)
-        }, totalTrace)
-      }, 400)
-    }, 600)
-  }, [activeConversationId, delay, getTimeLabel, guidedPrompt, inputValue.length, openContextPanel, queueCompletedActions])
+            if (!suppressContextPanelAutoOpenRef.current) openContextPanel()
+          }, 800)
+
+          delay(() => {
+            const nextIndex = stepIndex + 1
+            const nextStep = session?.steps?.[nextIndex]
+            guidedStepIndexRef.current = nextIndex
+            guidedSubmittedRef.current = false
+            if (nextStep?.prompt) setGuidedPrompt(nextStep.prompt)
+            else guidedSessionRef.current = null
+            setInputValue('')
+          }, 900)
+        }, 350)
+      }, totalTrace)
+    }, 400)
+  }, [clearTimers, delay, getSessionTitle, getTimeLabel, guidedPrompt, inputValue.length, messages.length, openContextPanel, queueCompletedActions])
 
   const sendMessage = useCallback(() => {
     if (guidedPrompt) return
@@ -208,10 +249,21 @@ export default function App() {
     setCompletedActions([])
     setShowConversation(false)
     setInputValue('')
+    guidedSessionRef.current = null
+    guidedStepIndexRef.current = 0
     setGuidedPrompt(null)
     suppressContextPanelAutoOpenRef.current = true
     setContextPanelOpen(false)
-  }, [clearTimers])
+    primeRoleSession()
+  }, [clearTimers, primeRoleSession])
+
+  useEffect(() => {
+    if (appStep !== 'app') return
+    if (showConversation) return
+    if (messages.length > 0) return
+    if (guidedSessionRef.current) return
+    primeRoleSession()
+  }, [appStep, messages.length, primeRoleSession, showConversation])
 
   // ── Keyboard shortcuts ────────────────────────────────────────
   useEffect(() => {
