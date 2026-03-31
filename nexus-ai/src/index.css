@@ -493,35 +493,122 @@ input, textarea { font-family: inherit; }
   backdrop-filter: blur(8px);
   animation: pulseBar 1.4s infinite;
   border-radius: 0 4px 4px 0;
-  overflow: hidden;
+  overflow: auto;
   flex-shrink: 0;
   transition: max-height 300ms var(--ease-out), opacity 300ms var(--ease-out), padding 300ms;
-  max-height: 400px;
+  max-height: 720px;
 }
+
 .thought-trace.collapsing {
   max-height: 0;
   opacity: 0;
   padding-top: 0;
   padding-bottom: 0;
 }
+
 @keyframes pulseBar {
   0%, 100% { border-left-color: var(--accent); }
-  50%       { border-left-color: rgba(232,197,71,0.25); }
+  50% { border-left-color: rgba(232,197,71,0.25); }
 }
-.trace-line {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  color: var(--text-muted);
-  line-height: 1.7;
+
+.trace-item {
   opacity: 0;
   transform: translateY(4px);
   transition: opacity 150ms, transform 150ms;
+  border-radius: 0;
+  margin-bottom: 0;
 }
-.trace-line.visible {
+
+.trace-item + .trace-item {
+  border-top: 1px solid var(--border-subtle);
+}
+
+.trace-item.visible {
   opacity: 1;
   transform: translateY(0);
 }
-.trace-line.complete { color: var(--text-secondary); }
+
+.trace-summary {
+  width: 100%;
+  text-align: left;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.trace-summary:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 65%, transparent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.trace-item.complete .trace-summary {
+  color: var(--text-secondary);
+}
+
+.trace-item:hover .trace-summary {
+  background: color-mix(in srgb, var(--bg-surface) 85%, transparent);
+}
+
+.trace-item.open .trace-summary {
+  background: transparent;
+}
+
+.trace-arrow,
+.trace-caret {
+  color: var(--text-muted);
+}
+
+.trace-item:hover .trace-arrow,
+.trace-item:hover .trace-caret {
+  color: var(--accent);
+}
+
+.trace-detail {
+  padding: 0;
+}
+
+.trace-item.open .trace-detail {
+  padding: 4px 8px 8px 22px;
+}
+
+.trace-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.trace-detail-title {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.trace-detail-list {
+  margin: 0;
+  padding-left: 16px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.trace-detail-text {
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+}
 
 /* AI Response Block */
 .ai-response {
@@ -549,9 +636,11 @@ input, textarea { font-family: inherit; }
   background: var(--border-subtle);
 }
 
-/* Methodology (Brain) Disclosure */
+/* Methodology (Brain) Disclosure — matches action-btn-ghost + agent section rhythm */
 .brain-disclosure {
-  margin-top: 10px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-subtle);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -559,39 +648,45 @@ input, textarea { font-family: inherit; }
 .brain-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 11px;
+  gap: 8px;
+  height: 30px;
+  padding: 0 14px;
+  font-size: 12px;
+  font-weight: 500;
   color: var(--text-muted);
   border: 1px solid var(--border-subtle);
-  border-radius: 999px;
-  padding: 6px 10px;
+  border-radius: 4px;
   background: var(--bg-surface);
-  box-shadow: var(--shadow-card);
-  transition: border-color 140ms var(--ease-out), color 140ms var(--ease-out), transform 140ms var(--ease-out);
+  transition: border-color 150ms, color 150ms, background 150ms;
 }
 .brain-toggle:hover {
   border-color: var(--border-medium);
-  color: var(--text-secondary);
+  color: var(--text-primary);
+  background: var(--bg-elevated);
 }
 .brain-toggle:active {
-  transform: translateY(1px);
+  background: var(--bg-overlay);
 }
 .brain-icon {
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+.brain-toggle:hover .brain-icon {
   color: var(--accent);
 }
 .brain-toggle-caret {
   margin-left: 2px;
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
 }
 .brain-panel {
   width: 100%;
   margin-top: 8px;
   border: 1px solid var(--border-subtle);
-  border-radius: 10px;
+  border-radius: 8px;
   background: var(--bg-elevated);
   padding: 12px 14px;
-  box-shadow: var(--shadow-card);
   display: none;
 }
 .brain-panel.open {
@@ -1069,40 +1164,50 @@ input, textarea { font-family: inherit; }
 }
 
 /* ============================================================
-   SMART SUGGESTION PILLS
+   SMART SUGGESTION PILLS (aligned with action-btn + input chips)
    ============================================================ */
 .suggestions {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
-  margin-top: 4px;
+  align-items: center;
+  margin-top: 0;
 }
 .suggestions-above-input {
   margin-top: 0;
 }
 .suggested-prompts-bar {
   flex-shrink: 0;
-  padding: 8px 40px 0;
+  padding: 10px 40px 10px;
   background: var(--bg-base);
+  border-top: 1px solid var(--border-subtle);
 }
 .suggestion-pill {
   height: 30px;
+  max-width: min(320px, 100%);
   padding: 0 14px;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-medium);
-  border-radius: 100px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
   font-size: 12px;
+  font-weight: 500;
   color: var(--text-secondary);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   opacity: 0;
-  transform: scale(0.95);
-  transition: border-color 150ms, color 150ms, opacity 200ms var(--ease-out), transform 200ms var(--ease-out);
+  transform: translateY(4px);
+  transition: border-color 150ms, color 150ms, background 150ms, opacity 200ms var(--ease-out), transform 200ms var(--ease-out);
 }
 .suggestion-pill.visible {
   opacity: 1;
-  transform: scale(1);
+  transform: translateY(0);
 }
-.suggestion-pill:hover { border-color: var(--accent); color: var(--text-primary); }
+.suggestion-pill:hover {
+  border-color: var(--accent);
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+}
 
 /* ============================================================
    INPUT BAR
