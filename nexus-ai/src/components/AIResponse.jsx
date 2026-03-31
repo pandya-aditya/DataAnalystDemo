@@ -4,6 +4,7 @@ import Response3 from './responses/Response3'
 import Response4 from './responses/Response4'
 import { getResponseStep } from './responses/roleResponses'
 import AgentResponseLayout from './AgentResponseLayout'
+import BrainDisclosure from './BrainDisclosure'
 
 export default function AIResponse({
   templateId,
@@ -39,6 +40,7 @@ export default function AIResponse({
       >
         {renderRaw()}
       </AgentResponseLayout>
+      <BrainDisclosure />
     </div>
   )
 }

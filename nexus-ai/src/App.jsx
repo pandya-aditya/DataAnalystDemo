@@ -36,6 +36,8 @@ export default function App() {
   const [guidedPrompt, setGuidedPrompt]            = useState(null)
   const [showConversation, setShowConversation]    = useState(false)
   const [contextPanelOpen, setContextPanelOpen]   = useState(false)
+  const [activityPanelUnread, setActivityPanelUnread] = useState(false)
+  const contextPanelOpenRef = useRef(false)
   const [revertPrompt, setRevertPrompt]           = useState(null)
   const [settingsOpen, setSettingsOpen]            = useState(false)
   const [chartOverlayOpen, setChartOverlayOpen]   = useState(false)
@@ -58,10 +60,10 @@ export default function App() {
     }
   })
 
-  const suppressContextPanelAutoOpenRef = useRef(false)
   const activeChatSessionIdRef = useRef(activeChatSessionId)
 
   useEffect(() => { activeChatSessionIdRef.current = activeChatSessionId }, [activeChatSessionId])
+  useEffect(() => { contextPanelOpenRef.current = contextPanelOpen }, [contextPanelOpen])
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -89,20 +91,14 @@ export default function App() {
     setActiveChatSessionId(null)
   }, [activeChatSessionId, chatSessions])
 
-  const openContextPanel = useCallback(() => {
-    suppressContextPanelAutoOpenRef.current = false
-    setContextPanelOpen(true)
-  }, [])
-
   const closeContextPanel = useCallback(() => {
-    suppressContextPanelAutoOpenRef.current = true
     setContextPanelOpen(false)
   }, [])
 
   const toggleContextPanel = useCallback(() => {
     setContextPanelOpen(prev => {
       const next = !prev
-      suppressContextPanelAutoOpenRef.current = !next
+      if (next) setActivityPanelUnread(false)
       return next
     })
   }, [])
@@ -180,6 +176,7 @@ export default function App() {
       },
       ...(Array.isArray(prev) ? prev : []),
     ]))
+    if (!contextPanelOpenRef.current) setActivityPanelUnread(true)
   }, [getTimeLabel])
 
   const upsertChatSessionAtTop = useCallback((sessionId, buildNext) => {
@@ -274,7 +271,6 @@ export default function App() {
       { type: 'ai', templateId: id },
     ])
     setShowConversation(true)
-    suppressContextPanelAutoOpenRef.current = false
     setContextPanelOpen(false)
 
     guidedSubmittedRef.current = false
@@ -296,7 +292,6 @@ export default function App() {
     setSessionName(session?.title || 'Conversation')
     setMessages(Array.isArray(session?.messages) ? session.messages : [])
     setShowConversation(true)
-    suppressContextPanelAutoOpenRef.current = false
     setContextPanelOpen(false)
 
     const guided = session?.guided
@@ -330,7 +325,6 @@ export default function App() {
     if (!step) return
 
     clearTimers()
-    suppressContextPanelAutoOpenRef.current = false
     setShowConversation(true)
 
     const inferredTitle = session?.title || getSessionTitle(step.prompt)
@@ -442,13 +436,10 @@ export default function App() {
             })
           }
 
-          delay(() => {
-            if (!suppressContextPanelAutoOpenRef.current) openContextPanel()
-          }, 800)
         }, 350)
       }, totalTrace)
     }, 400)
-  }, [appendChatSessionMessage, clearTimers, createChatSessionId, delay, getSessionTitle, getTimeLabel, guidedPrompt, inputValue.length, messages.length, openContextPanel, transformChatSessionMessages, upsertChatSessionAtTop])
+  }, [appendChatSessionMessage, clearTimers, createChatSessionId, delay, getSessionTitle, getTimeLabel, guidedPrompt, inputValue.length, messages.length, transformChatSessionMessages, upsertChatSessionAtTop])
 
   const sendMessage = useCallback((opts) => {
     if (guidedPrompt) return false
@@ -469,7 +460,6 @@ export default function App() {
     clearTimers()
     agentRespondingRef.current = true
     setAgentResponding(true)
-    suppressContextPanelAutoOpenRef.current = false
     setShowConversation(true)
 
     setInputValue('')
@@ -545,8 +535,8 @@ export default function App() {
     guidedSessionRef.current = null
     guidedStepIndexRef.current = 0
     setGuidedPrompt(null)
-    suppressContextPanelAutoOpenRef.current = true
     setContextPanelOpen(false)
+    setActivityPanelUnread(false)
     primeRoleSession()
   }, [clearTimers, primeRoleSession])
 
@@ -641,6 +631,7 @@ export default function App() {
         profileInitials={profileInitials}
         onSettingsOpen={() => setSettingsOpen(true)}
         sourcesOpen={contextPanelOpen}
+        activityUnread={activityPanelUnread}
         onSourcesToggle={toggleContextPanel}
       />
       <div className="main-area">
