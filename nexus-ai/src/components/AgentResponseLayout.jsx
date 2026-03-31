@@ -253,15 +253,17 @@ function Section({ children }) {
   )
 }
 
-function PromptPills({ prompts, onSuggestedPrompt }) {
-  if (!Array.isArray(prompts) || prompts.length === 0) return <EmptyState label="No suggested prompts" />
+/** Renders above the input bar; exported for CanvasArea. */
+export function SuggestedPromptPills({ prompts, onSelect }) {
+  if (!Array.isArray(prompts) || prompts.length === 0) return null
   return (
-    <div className="suggestions" role="list" aria-label="Suggested prompts">
+    <div className="suggestions suggestions-above-input" role="list" aria-label="Suggested prompts">
       {prompts.map((p) => (
         <button
           key={p}
+          type="button"
           className="suggestion-pill visible"
-          onClick={() => onSuggestedPrompt?.(p)}
+          onClick={() => onSelect?.(p)}
           title={p}
           aria-label={p}
         >
@@ -295,7 +297,7 @@ function ActionCards({ cards, sectionPrefix, doneKeys, runState, onMarkAction })
 
 const ACTION_RUN_MS = 1500
 
-export default function AgentResponseLayout({ children, onSuggestedPrompt, onAgentActionCompleted }) {
+export default function AgentResponseLayout({ children, onSuggestedPromptsChange, onAgentActionCompleted }) {
   const { canWrite } = useSourceAccess()
   const [doneActionKeys, setDoneActionKeys] = useState(() => new Set())
   const [runState, setRunState] = useState({})
@@ -335,6 +337,15 @@ export default function AgentResponseLayout({ children, onSuggestedPrompt, onAge
   ))
 
   const prompts = extractSuggestedPrompts(actionCards)
+  const promptsKey = prompts.join('\0')
+
+  useEffect(() => {
+    if (!onSuggestedPromptsChange) return
+    onSuggestedPromptsChange(prompts)
+    return () => {
+      onSuggestedPromptsChange([])
+    }
+  }, [promptsKey, onSuggestedPromptsChange])
 
   const taken = []
   const needsPermission = []
@@ -364,11 +375,6 @@ export default function AgentResponseLayout({ children, onSuggestedPrompt, onAge
     <div className="agent-response-sections">
       {analysisBlock?.length ? <Section>{analysisBlock}</Section> : null}
       {data.length ? <Section>{data}</Section> : null}
-      {prompts.length ? (
-        <Section>
-          <PromptPills prompts={prompts} onSuggestedPrompt={onSuggestedPrompt} />
-        </Section>
-      ) : null}
       {taken.length ? (
         <Section>
           <ActionCards

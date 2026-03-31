@@ -12,7 +12,7 @@ export default function AIResponse({
   roleStepIndex,
   text,
   onExpandChart,
-  onSuggestedPrompt,
+  onSuggestedPromptsChange,
   onAgentActionCompleted,
 }) {
   const renderRaw = () => {
@@ -35,7 +35,7 @@ export default function AIResponse({
     <div className="ai-response">
       <div className="ai-label">Nexus &nbsp;·&nbsp; just now</div>
       <AgentResponseLayout
-        onSuggestedPrompt={onSuggestedPrompt}
+        onSuggestedPromptsChange={onSuggestedPromptsChange}
         onAgentActionCompleted={onAgentActionCompleted}
       >
         {renderRaw()}

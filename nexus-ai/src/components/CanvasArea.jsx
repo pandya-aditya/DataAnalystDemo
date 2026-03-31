@@ -1,9 +1,10 @@
-import { useRef, useLayoutEffect } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import EmptyState from './EmptyState'
 import UserMessage from './UserMessage'
 import ThoughtTrace from './ThoughtTrace'
 import AIResponse from './AIResponse'
 import InputBar from './InputBar'
+import { SuggestedPromptPills } from './AgentResponseLayout'
 import KpiOverviewWidget from './KpiOverviewWidget'
 
 export default function CanvasArea({
@@ -24,6 +25,18 @@ export default function CanvasArea({
   const convRef = useRef(null)
   const lastSubmittedPromptRef = useRef(null)
   const responseReserveRef = useRef(null)
+  const [suggestedPrompts, setSuggestedPrompts] = useState([])
+
+  const lastAiIndex = useMemo(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      if (messages[i].type === 'ai') return i
+    }
+    return -1
+  }, [messages])
+
+  useEffect(() => {
+    if (lastAiIndex < 0) setSuggestedPrompts([])
+  }, [lastAiIndex])
 
   const lastMsg = messages[messages.length - 1]
   // Keep headroom through the thought-trace phase; removing the reserve when trace
@@ -79,7 +92,7 @@ export default function CanvasArea({
                 roleStepIndex={msg.roleStepIndex}
                 text={msg.text}
                 onExpandChart={onExpandChart}
-                onSuggestedPrompt={(p) => setInputValue?.(p)}
+                onSuggestedPromptsChange={i === lastAiIndex ? setSuggestedPrompts : undefined}
                 onAgentActionCompleted={onAgentActionCompleted}
               />
             )
@@ -97,6 +110,11 @@ export default function CanvasArea({
         <EmptyState onStartConversation={startConversation} userName={userName} />
       )}
       <KpiOverviewWidget userRole={userRole} />
+      {showConversation && suggestedPrompts.length > 0 ? (
+        <div className="suggested-prompts-bar">
+          <SuggestedPromptPills prompts={suggestedPrompts} onSelect={(p) => setInputValue?.(p)} />
+        </div>
+      ) : null}
       <InputBar
         value={inputValue}
         onChange={setInputValue}

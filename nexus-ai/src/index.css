@@ -1077,6 +1077,14 @@ input, textarea { font-family: inherit; }
   flex-wrap: wrap;
   margin-top: 4px;
 }
+.suggestions-above-input {
+  margin-top: 0;
+}
+.suggested-prompts-bar {
+  flex-shrink: 0;
+  padding: 8px 40px 0;
+  background: var(--bg-base);
+}
 .suggestion-pill {
   height: 30px;
   padding: 0 14px;
