@@ -77,114 +77,226 @@ const stepsFor = ({ name, industry, role, category }) => {
       title: `${roleLabel} Starter Session`,
       steps: [
         {
-          prompt: `I’m a ${roleLabel} in ${industryLabel}. Summarize the top 5 user problems from the last 14 days and recommend 2 opportunities to prioritize this sprint.`,
+          prompt: `Leadership wants 40% growth but my margins are already slipping. Where is the bleed coming from?`,
+          suggestedPrompts: [
+            'What does 40% growth actually look like if we fix the channel mix?',
+            'Which denim SKUs specifically need to be repriced and by how much?',
+            "How big is our retention opportunity and what's it worth if we actually go after it?",
+          ],
           traces: [
-            'Loading product analytics (funnels, retention, cohorts)...',
-            'Pulling customer feedback (support tickets, NPS, reviews)...',
-            'Clustering feedback by theme and severity...',
-            'Quantifying impact: affected users × frequency × revenue proxy...',
-            'Cross-referencing recent releases and known incidents...',
-            'Drafting opportunity shortlist with effort/risk notes...',
-            'Ready.',
+            {
+              summary: 'Data sources pulled: Shopify + AWS + Klaviyo + Google Drive.',
+              detail: {
+                dataPulled: [
+                  'Shopify: category revenue + order volume + channel attribution (current quarter)',
+                  'AWS (margin table): per-category + per-SKU gross margin actuals vs brand average',
+                  'Klaviyo: repurchase rate + LTV by acquisition source (paid vs organic/email)',
+                  'Google Drive: Annual Brand Strategy + CEO Growth OKR + margin floor language',
+                ],
+                analysis: [
+                  'Joined category mix with margin actuals to quantify blended GM pressure',
+                  'Compared paid vs organic/email cohorts on repurchase behavior and LTV',
+                ],
+                output: [
+                  'Two primary margin drivers with quantified impact and leadership-ready framing',
+                ],
+              },
+            },
+            {
+              summary: 'Why this data was retrieved: a Q2 budget decision was imminent.',
+              detail: {
+                dataPulled: [
+                  'Meeting context: CEO/CFO budget approval requires clarity on the trade-offs',
+                ],
+                analysis: [
+                  'Prioritized findings that change decisions (not just backward-looking diagnostics)',
+                  'Mapped the narrative to existing OKR language to avoid “pushback” optics',
+                ],
+                output: [
+                  'A counter-proposal: growth is achievable, but channel mix + category margin must change',
+                ],
+              },
+            },
+            {
+              summary: 'Technique applied: shift-share analysis + LTV cohort regression.',
+              detail: {
+                dataPulled: [
+                  'Category revenue share and growth components (mix shift vs share gains)',
+                  'Cohort repurchase behavior by acquisition source (controlling for AOV/seasonality)',
+                ],
+                analysis: [
+                  'Shift-share to isolate mix-driven growth (denim expansion) vs true share gain',
+                  'Regression to confirm paid-acquired retention is structurally lower',
+                ],
+                output: [
+                  'Clear attribution: mix shift + retention gap are the mechanical margin drags',
+                ],
+              },
+            },
+            {
+              summary: 'Results: paid cohort churn + denim mix implies ~6-pt blended GM risk at 40% growth.',
+              detail: {
+                dataPulled: [
+                  'Repurchase rate multiple: organic/email vs paid',
+                  'Denim: revenue share vs GM% vs brand average',
+                ],
+                analysis: [
+                  'Modeled blended GM impact under “more paid + more denim volume” scaling',
+                  'Identified denim as revenue-positive but margin-negative mix shift',
+                ],
+                output: [
+                  'Immediate actions: reallocate toward retention + reprice the worst denim SKUs',
+                ],
+              },
+            },
           ],
           ai: {
             text: asText`
-              Here’s a sprint-ready view of what’s hurting users most right now and where you’ll get the biggest payoff.
+              The margin bleed comes from two places:
 
-              Top problems (last 14 days)
-              1) Checkout friction on mobile — drop-offs spike at shipping selection; most common complaint: “too many steps”.
-              2) Confusing returns/refunds expectations — users can’t find timelines; higher ticket volume and negative reviews.
-              3) Inventory availability surprises — “in stock” → “backordered” after add-to-cart for a small set of SKUs.
-              4) Slow first meaningful paint on PDP — correlates with lower conversion for new users.
-              5) Promo code reliability — intermittent “code invalid” and stacking confusion.
+              1) Paid acquisition quality (primarily Meta): revenue is up, but paid-acquired customers repurchase far less than organic/email cohorts, so you scale the top of funnel while draining the bottom.
+              2) Denim category mix shift: denim is fast-growing and now a large share of revenue, but it’s well below brand-average gross margin—so growth mechanically dilutes blended GM.
 
-              Two opportunities to prioritize
-              A) Mobile checkout simplification (high impact, medium effort)
-              - Reduce step count, prefill shipping, improve error copy, and instrument drop-off by field.
-              - Success metrics: mobile CVR, checkout completion rate, time-to-complete, support tickets tagged “checkout”.
-
-              B) Returns clarity + self-serve flow (medium-high impact, low-medium effort)
-              - Add a clear policy module, proactive order-status messaging, and a guided return eligibility checker.
-              - Success metrics: ticket deflection, CSAT, repeat purchase rate for returners.
-
-              If you want, I can turn (A) into a PRD + experiment plan next.
+              If you pursue 40% growth via the current playbook (more paid + more denim volume), margins drop another ~6 points. The fix is to change channel mix (retention) and neutralize denim’s margin drag (targeted repricing).
             `,
           },
         },
         {
-          prompt: `Turn the highest priority opportunity into a 1-page PRD with scope, out of scope, success metrics, and key risks.`,
+          prompt: `What does hitting 40% growth actually look like if we fix the channel mix and sort out denim margins?`,
+          suggestedPrompts: [
+            'Can you write up the full Q2 brief so I can send it to leadership by Thursday?',
+            'How do I know if the retention flows are actually working once we launch them?',
+            "What happens to this plan if denim sales drop because we raise prices?",
+          ],
           traces: [
-            'Creating PRD skeleton (problem → goals → scope → metrics)...',
-            'Selecting primary metrics and guardrails...',
-            'Enumerating edge cases and compliance constraints...',
-            'Drafting phased rollout plan...',
-            'Ready.',
+            {
+              summary: 'Data sources pulled: Shopify + AWS + Klaviyo + Meta Ads API + Google Drive.',
+              detail: {
+                dataPulled: [
+                  'Shopify: baseline run rate + category trajectories + channel-attributed orders',
+                  'AWS: SKU-level margin actuals to model denim repricing impact',
+                  'Klaviyo: high-LTV segment size + historical conversion + revenue per recipient',
+                  'Meta Ads API: ROAS by audience type (prospecting vs retargeting)',
+                  'Google Drive: CEO OKR + Q2 budget framework (growth target + margin floor)',
+                ],
+                analysis: [
+                  'Sized retention upside from underleveraged high-LTV segments',
+                  'Modeled denim price lift → category GM normalization → blended GM protection',
+                  'Simulated paid spend reallocation toward warmer audiences',
+                ],
+                output: [
+                  'A 3-lever plan that hits ~38–43% growth while holding ~42–44% blended GM',
+                ],
+              },
+            },
+            {
+              summary: 'Technique applied: constrained optimization + Monte Carlo projection.',
+              detail: {
+                dataPulled: [
+                  'Historical distributions for flow conversion, price elasticity, and ROAS response',
+                ],
+                analysis: [
+                  'Optimized lever magnitudes under joint constraints (growth + margin floor)',
+                  'Ran Monte Carlo to generate confidence intervals (not a single point estimate)',
+                ],
+                output: [
+                  'A defensible range showing the combined levers reliably clear targets',
+                ],
+              },
+            },
+            {
+              summary: 'Results: budget-neutral path to target via retention + denim repricing + paid reallocation.',
+              detail: {
+                dataPulled: [
+                  'Incremental revenue/margin by lever and variance expectations',
+                ],
+                analysis: [
+                  'Verified no single lever clears both constraints alone; combination required',
+                  'Ranked levers by certainty vs variance (denim reprice highest certainty)',
+                ],
+                output: [
+                  'Leadership narrative: “spend smarter, not more” + fix category margin before scaling',
+                ],
+              },
+            },
           ],
           ai: {
             text: asText`
-              PRD (1-pager): Mobile Checkout Simplification
+              It’s doable if you scale the right things.
 
-              Problem
-              - Mobile checkout drop-offs are elevated at shipping selection and payment validation, driving lost orders and support load.
+              Lever 1: Retention
+              - Activate high-LTV customers with targeted Klaviyo flows.
+              - Projected incremental Q2 revenue: ~$1.2–$1.6M at ~61% margin.
 
-              Goals
-              - Increase mobile checkout completion rate and reduce time-to-checkout without increasing fraud/chargebacks.
+              Lever 2: Denim margin correction
+              - Targeted repricing (~13%) on two underperforming SKUs to bring denim GM from ~29% → ~41%.
 
-              Scope (MVP)
-              - Reduce checkout steps (combine shipping + delivery options).
-              - Prefill known fields for returning users.
-              - Clear validation and error messaging (address, phone, payment).
-              - Instrumentation: per-step drop-off, error rates by field, time-to-complete, recovery rate after errors.
+              Lever 3: Paid reallocation
+              - Shift ~20% of Meta prospecting to retargeting/lapsed audiences to improve blended paid ROAS.
 
-              Out of scope (for MVP)
-              - New payment methods, major redesign of cart, subscription/BNPL expansion.
-
-              Success metrics
-              - Primary: mobile checkout completion rate (+X%), mobile CVR (+X%).
-              - Secondary: time-to-complete (-Y%), “checkout help” ticket volume (-Z%).
-              - Guardrails: refund rate, chargeback rate, AOV.
-
-              Key risks
-              - Hidden complexity in shipping rules/taxes; regressions if edge cases are missed.
-              - Prefill can introduce incorrect defaults; must show “edit” affordances clearly.
-              - Analytics drift if events aren’t consistent across old/new flow.
-
-              Next: I can propose an A/B test design + rollout checklist.
+              Combined, these levers model to ~38–43% growth at ~42–44% blended gross margin without increasing total budget.
             `,
           },
         },
         {
-          prompt: `Create an A/B test plan and rollout checklist for this PRD (including instrumentation and monitoring).`,
+          prompt: `Can you write the Q2 growth plan section for the board deck?`,
+          suggestedPrompts: [
+            'Can you build out the 30-day performance review framework so we know if this is working?',
+            "What should I be watching weekly to catch problems before they become board-level issues?",
+            "If the board pushes back on the denim reprice, what's our backup plan?",
+          ],
           traces: [
-            'Designing experiment: population, duration, MDE...',
-            'Defining events, properties, and funnels...',
-            'Drafting monitoring + rollback criteria...',
-            'Creating launch checklist for eng + QA...',
-            'Ready.',
+            {
+              summary: 'Data sources pulled: Google Drive strategy + OKR docs + prior analysis outputs.',
+              detail: {
+                dataPulled: [
+                  'Annual Brand Strategy doc: board-facing tone + terminology',
+                  'CEO OKR doc + Q2 budget framework: targets + margin floor + approval language',
+                  'Turn 1/2 outputs: levers + projections used verbatim for consistency',
+                  'Q2 Planning folder: confirmed chart/artifact references',
+                ],
+                analysis: [
+                  'Translated analysis into board decision format (situation → opportunity → levers → ask)',
+                  'Ran consistency validation so numbers/claims match the underlying model',
+                ],
+                output: [
+                  'Board-ready Q2 Growth Plan copy with a clear decision ask and checkpoint',
+                ],
+              },
+            },
+            {
+              summary: 'Technique applied: structured executive communication + consistency validation.',
+              detail: {
+                dataPulled: [
+                  'Existing board/strategy language patterns from internal docs',
+                ],
+                analysis: [
+                  'Aligned framing to leadership’s already-approved goals and constraints',
+                  'Removed internal-analysis artifacts and kept only decision-critical content',
+                ],
+                output: [
+                  'A section that is defensible under CFO questioning and readable for the board',
+                ],
+              },
+            },
           ],
           ai: {
             text: asText`
-              A/B test plan
-              - Hypothesis: simplifying mobile checkout reduces friction at shipping/payment steps, increasing completion rate.
-              - Variants: Control (current) vs Treatment (simplified step flow + improved validation copy).
-              - Targeting: mobile web sessions; exclude internal traffic; keep returning/new split as a dimension.
-              - Primary metric: checkout completion rate.
-              - Guardrails: chargeback rate, refund rate, payment failure rate, page performance (LCP/INP).
-              - Duration: run until you hit statistical power for completion-rate MDE; minimum 1 full week to cover weekday/weekend mix.
+              Q2 GROWTH PLAN — BOARD SUMMARY (Draft)
 
-              Instrumentation
-              - Events: checkout_step_viewed, checkout_step_completed, checkout_error_shown, checkout_error_recovered, payment_attempted, order_completed.
-              - Properties: step_name, field_name, error_code, user_type, shipping_method, device, experiment_variant.
+              Situation
+              - Strong top-line momentum, but channel mix and category expansion are pressuring gross margin.
 
-              Monitoring + rollback
-              - Real-time dashboards for completion rate, payment failures, and error spikes.
-              - Rollback triggers: payment failure +20% vs control, chargebacks trending up, severe checkout JS errors.
+              Opportunity
+              - Three high-conviction levers can deliver ~38–43% Q2 growth at ~42–44% blended GM.
 
-              Rollout checklist
-              - QA: edge cases (international addresses, PO boxes, coupons, split shipments).
-              - Performance: confirm no regression to LCP/INP on PDP/cart/checkout.
-              - Observability: Sentry alerts for checkout errors; anomaly monitoring on completion rate.
-              - Post-launch: review segment results (new vs returning, iOS vs Android), then ramp traffic.
+              Levers
+              1) Retention: activate high-LTV customers via Klaviyo flows (margin-accretive).
+              2) Denim margin correction: targeted reprice on two underperforming SKUs (neutralizes margin drag).
+              3) Paid reallocation: shift spend toward warmer audiences (improves ROAS without increasing budget).
+
+              What we need
+              - Approve the Q2 budget allocation as proposed, with a 30-day performance review checkpoint.
             `,
           },
         },

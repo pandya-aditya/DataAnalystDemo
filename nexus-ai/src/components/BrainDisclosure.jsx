@@ -1,5 +1,6 @@
 import { useId, useMemo, useState } from 'react'
 import ThoughtTrace from './ThoughtTrace'
+import { SuggestedPromptPills } from './AgentResponseLayout'
 
 const DEFAULT_TRACE_ITEMS = [
   {
@@ -156,7 +157,7 @@ function BrainIcon({ className }) {
   )
 }
 
-export default function BrainDisclosure({ traceLines }) {
+export default function BrainDisclosure({ traceLines, suggestedPrompts, onSelectSuggestedPrompt }) {
   const [open, setOpen] = useState(false)
   const panelId = useId()
 
@@ -166,18 +167,22 @@ export default function BrainDisclosure({ traceLines }) {
 
   return (
     <div className="brain-disclosure">
-      <button
-        type="button"
-        className="brain-toggle"
-        aria-expanded={open}
-        aria-controls={panelId}
-        onClick={() => setOpen(v => !v)}
-        title={open ? 'Hide methodology' : 'Show methodology'}
-      >
-        <BrainIcon className="brain-icon" />
-        Show Thoughts
-        <span className="brain-toggle-caret" aria-hidden="true">{open ? '▾' : '▸'}</span>
-      </button>
+      <div className="brain-bar">
+        <button
+          type="button"
+          className="brain-toggle"
+          aria-expanded={open}
+          aria-controls={panelId}
+          onClick={() => setOpen(v => !v)}
+          title={open ? 'Hide methodology' : 'Show methodology'}
+        >
+          <BrainIcon className="brain-icon" />
+          Show Thoughts
+          <span className="brain-toggle-caret" aria-hidden="true">{open ? '▾' : '▸'}</span>
+        </button>
+
+        <SuggestedPromptPills prompts={suggestedPrompts} onSelect={onSelectSuggestedPrompt} />
+      </div>
 
       <div
         id={panelId}

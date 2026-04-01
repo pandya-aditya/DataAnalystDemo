@@ -12,9 +12,9 @@
 
 // ─── Product (PM, Analyst, BA, UX Researcher, CRO Specialist) ────────────────
 export {
-  ProductResponse1,  // Step 1: Top 5 user problems + 2 sprint opportunities (table + action cards)
-  ProductResponse2,  // Step 2: 1-page PRD with scope, metrics, risks
-  ProductResponse3,  // Step 3: A/B test plan, funnel chart, launch checklist
+  ProductResponse1,  // Step 1: Margin bleed diagnosis + category mix scatter + actions
+  ProductResponse2,  // Step 2: Q2 growth plan levers + waterfall + actions
+  ProductResponse3,  // Step 3: Board deck Q2 section + KPI cards + actions
 } from './ProductResponses'
 
 // ─── Engineering (FE, BE, Full Stack, DevOps, QA) ────────────────────────────

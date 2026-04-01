@@ -1,317 +1,408 @@
 import { InlineChart } from './shared'
 
-// ─── Step 1: Top user problems + sprint opportunities ───────────────────────
+// ─── Turn 1: Diagnose margin bleed ───────────────────────────────────────────
 
-export function ProductResponse1() {
-  return (
-    <>
-      <div className="ai-text">
-        <p>
-          Here's a sprint-ready view of what's hurting users most right now and where you'll get the biggest payoff this cycle.
-        </p>
-        <p>
-          Two opportunities stand out on impact-vs-effort: mobile checkout friction is the single highest-volume complaint, and returns/refunds confusion is driving preventable support load and repeat-purchase churn.
-        </p>
-      </div>
-
-      <div className="data-block">
-        <div className="data-table-wrap">
-          <table className="data-table" aria-label="Top user problems table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Problem</th>
-                <th>Affected Users (14d)</th>
-                <th>Severity</th>
-                <th>Revenue Proxy</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>1</td>
-                <td>Mobile checkout friction — too many steps at shipping selection</td>
-                <td className="cell-red">4,820</td>
-                <td><span className="status-badge status-alert">Critical</span></td>
-                <td className="cell-red">High</td>
-              </tr>
-              <tr>
-                <td>2</td>
-                <td>Returns/refunds timing confusion — users can't find policy or ETA</td>
-                <td className="cell-amber">3,110</td>
-                <td><span className="status-badge status-ok">Medium</span></td>
-                <td className="cell-amber">Medium</td>
-              </tr>
-              <tr>
-                <td>3</td>
-                <td>Inventory surprises — "in stock" → "backordered" post add-to-cart</td>
-                <td className="cell-amber">1,940</td>
-                <td><span className="status-badge status-ok">Medium</span></td>
-                <td className="cell-amber">Medium</td>
-              </tr>
-              <tr>
-                <td>4</td>
-                <td>Slow PDP first meaningful paint on mobile (LCP &gt; 4s)</td>
-                <td className="cell-amber">2,670</td>
-                <td><span className="status-badge status-ok">Medium</span></td>
-                <td className="cell-green">Low</td>
-              </tr>
-              <tr>
-                <td>5</td>
-                <td>Promo code reliability — intermittent "invalid" + stacking confusion</td>
-                <td className="cell-green">980</td>
-                <td><span className="status-badge status-good">Low</span></td>
-                <td className="cell-green">Low</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div className="response-section-title">Two opportunities to prioritize</div>
-      <div className="action-cards">
-        <div className="action-card visible pending">
-          <div className="action-card-header">
-            <span className="platform-badge">Sprint A</span>
-            <span className="action-type-pill pending">High Impact · Medium Effort</span>
-            <span className="action-title">Mobile Checkout Simplification</span>
-          </div>
-          <div className="action-description">
-            Reduce step count, prefill shipping for returning users, improve error copy, and add per-field drop-off instrumentation. Success: mobile CVR, checkout completion rate, time-to-complete.
-          </div>
-          <div className="action-btns">
-            <button className="action-btn-primary">Draft PRD</button>
-            <button className="action-btn-ghost">Add to backlog</button>
-          </div>
-        </div>
-
-        <div className="action-card visible done">
-          <div className="action-card-header">
-            <span className="platform-badge">Sprint B</span>
-            <span className="action-type-pill done">Medium-High Impact · Low Effort</span>
-            <span className="action-title">Returns Clarity + Self-Serve Flow</span>
-          </div>
-          <div className="action-description">
-            Add a clear policy module, proactive order-status messaging, and a guided return eligibility checker. Success: ticket deflection, CSAT, repeat purchase rate for returners.
-          </div>
-          <div className="action-btns">
-            <button className="action-btn-primary">Draft PRD</button>
-            <button className="action-btn-ghost">Add to backlog</button>
-          </div>
-        </div>
-      </div>
-    </>
-  )
-}
-
-// ─── Step 2: Full 1-page PRD ─────────────────────────────────────────────────
-
-export function ProductResponse2() {
-  return (
-    <>
-      <div className="ai-text">
-        <p>
-          Here's the 1-page PRD for Mobile Checkout Simplification — scoped for an MVP sprint with clear success metrics, guardrails, and phased rollout milestones.
-        </p>
-      </div>
-
-      <div className="data-block">
-        <div className="data-table-wrap">
-          <table className="data-table" aria-label="PRD scope table">
-            <thead>
-              <tr>
-                <th>Section</th>
-                <th>Detail</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><strong>Problem</strong></td>
-                <td>Mobile checkout drop-offs spike at shipping selection and payment validation, driving lost orders and avoidable support load.</td>
-              </tr>
-              <tr>
-                <td><strong>Goal</strong></td>
-                <td>Increase mobile checkout completion rate and reduce time-to-checkout without increasing fraud or chargebacks.</td>
-              </tr>
-              <tr>
-                <td><strong>In scope</strong></td>
-                <td>Combine shipping + delivery steps; prefill known fields for returning users; clear validation + error messaging; per-step drop-off instrumentation.</td>
-              </tr>
-              <tr>
-                <td><strong>Out of scope</strong></td>
-                <td>New payment methods, major cart redesign, subscription/BNPL expansion (Phase 2).</td>
-              </tr>
-              <tr>
-                <td><strong>Primary metrics</strong></td>
-                <td>Mobile checkout completion rate (+target%), mobile CVR (+target%).</td>
-              </tr>
-              <tr>
-                <td><strong>Secondary metrics</strong></td>
-                <td>Time-to-complete (−target%), "checkout help" ticket volume (−target%).</td>
-              </tr>
-              <tr>
-                <td><strong>Guardrails</strong></td>
-                <td>Refund rate, chargeback rate, AOV — must not degrade.</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div className="response-section-title">Proposed actions</div>
-      <div className="action-cards">
-        <div className="action-card visible alert">
-          <div className="action-card-header">
-            <span className="platform-badge">QA</span>
-            <span className="action-type-pill alert">Priority</span>
-            <span className="action-title">Build shipping/tax regression matrix</span>
-          </div>
-          <div className="action-description">
-            Cover international, PO boxes, coupons, split shipments, and gift cards. Block rollout if any payment/shipping edge cases fail.
-          </div>
-        </div>
-        <div className="action-card visible pending">
-          <div className="action-card-header">
-            <span className="platform-badge">Experiment</span>
-            <span className="action-type-pill pending">Suggested</span>
-            <span className="action-title">Pilot prefill with returning users</span>
-          </div>
-          <div className="action-description">
-            Ensure prefilled fields have clear edit affordances; start with a small returning-user cohort before ramping broadly.
-          </div>
-        </div>
-        <div className="action-card visible done">
-          <div className="action-card-header">
-            <span className="platform-badge">Rollout</span>
-            <span className="action-type-pill done">Ready</span>
-            <span className="action-title">Phased ramp with rollback triggers</span>
-          </div>
-          <div className="action-description">
-            Ramp <span className="code-highlight">5%</span> → <span className="code-highlight">25%</span> → <span className="code-highlight">100%</span> with automatic rollback on payment failure rate and checkout error spikes.
-          </div>
-          <div className="action-btns">
-            <button className="action-btn-primary">Create rollout checklist</button>
-            <button className="action-btn-ghost">Skip</button>
-          </div>
-        </div>
-      </div>
-    </>
-  )
-}
-
-// ─── Step 3: A/B test plan + instrumentation + rollout checklist ─────────────
-
-const FUNNEL_CONFIG = {
-  type: 'bar',
+const CATEGORY_MARGIN_SCATTER = {
+  type: 'scatter',
   data: {
-    labels: ['Cart', 'Checkout Start', 'Shipping Step', 'Payment Step', 'Order Complete'],
     datasets: [
       {
-        label: 'Control (%)',
-        data: [100, 74, 51, 38, 29],
-        backgroundColor: 'rgba(232,197,71,0.5)',
-        borderRadius: 4,
+        label: 'Categories',
+        data: [
+          { x: 51, y: 28, label: 'Tops & basics' },
+          { x: 47, y: 18, label: 'Outerwear' },
+          { x: 62, y: 12, label: 'Accessories' },
+          { x: 44, y: 8, label: 'Dresses' },
+        ],
+        backgroundColor: 'rgba(82, 201, 122, 0.75)',
+        borderColor: 'rgba(82, 201, 122, 1)',
+        pointRadius: 5,
       },
       {
-        label: 'Treatment Target (%)',
-        data: [100, 74, 62, 50, 38],
-        backgroundColor: 'rgba(82,201,122,0.7)',
-        borderRadius: 4,
+        label: 'Denim',
+        data: [{ x: 29, y: 34, label: 'Denim' }],
+        backgroundColor: 'rgba(224, 82, 82, 0.85)',
+        borderColor: 'rgba(224, 82, 82, 1)',
+        pointRadius: 7,
+      },
+      // Reference line: Brand margin target (x = 44)
+      {
+        type: 'line',
+        label: 'Brand margin target',
+        data: [{ x: 44, y: 0 }, { x: 44, y: 40 }],
+        borderColor: 'rgba(232, 197, 71, 0.6)',
+        borderDash: [4, 4],
+        pointRadius: 0,
+        borderWidth: 1.5,
+      },
+      // Reference line: Material revenue threshold (y = 25)
+      {
+        type: 'line',
+        label: 'Material revenue threshold',
+        data: [{ x: 20, y: 25 }, { x: 65, y: 25 }],
+        borderColor: 'rgba(232, 197, 71, 0.35)',
+        borderDash: [4, 4],
+        pointRadius: 0,
+        borderWidth: 1.5,
       },
     ],
   },
   options: {
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => {
+            const p = ctx?.raw
+            const name = p?.label ? `${p.label}: ` : ''
+            return `${name}${p?.y}% revenue @ ${p?.x}% GM`
+          },
+        },
+      },
+    },
     scales: {
-      y: { ticks: { callback: (v) => `${v}%` }, max: 110 },
+      x: {
+        title: { display: true, text: 'Gross Margin %' },
+        min: 20,
+        max: 65,
+        ticks: { callback: (v) => `${v}%` },
+      },
+      y: {
+        title: { display: true, text: 'Share of Total Revenue %' },
+        min: 0,
+        max: 40,
+        ticks: { callback: (v) => `${v}%` },
+      },
     },
   },
 }
 
-export function ProductResponse3({ onExpandChart }) {
+export function ProductResponse1({ onExpandChart }) {
   return (
     <>
       <div className="ai-text">
         <p>
-          Here's the full A/B test plan with instrumentation schema, monitoring thresholds, and a launch checklist for eng and QA.
+          The margin bleed is coming from two places: acquisition quality and category mix.
+          Paid channels (especially Meta) are bringing revenue, but the paid cohort is repurchasing far less than organic/email—so LTV is lagging while CAC rises.
         </p>
         <p>
-          The funnel below shows the control drop-off vs. the treatment targets — the biggest expected recovery is at the shipping and payment steps.
+          The second driver is denim. It’s your fastest-growing category by revenue, but it’s also your thinnest by margin. As denim becomes a larger share of sales, it mechanically drags blended gross margin down.
         </p>
       </div>
 
       <div className="data-block">
         <InlineChart
-          title="Checkout funnel: control vs treatment target"
-          onExpand={() => onExpandChart?.('funnel')}
-          config={FUNNEL_CONFIG}
+          title="Revenue contribution vs gross margin % (current quarter)"
+          onExpand={() => onExpandChart?.('category-margin')}
+          config={CATEGORY_MARGIN_SCATTER}
         />
       </div>
 
-      <div className="data-block">
-        <div className="data-table-wrap">
-          <table className="data-table" aria-label="A/B test plan table">
-            <thead>
-              <tr>
-                <th>Dimension</th>
-                <th>Detail</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><strong>Hypothesis</strong></td>
-                <td>Simplifying mobile checkout reduces friction, increasing completion rate.</td>
-              </tr>
-              <tr>
-                <td><strong>Variants</strong></td>
-                <td>Control (current) vs Treatment (simplified flow + improved validation copy).</td>
-              </tr>
-              <tr>
-                <td><strong>Targeting</strong></td>
-                <td>Mobile web sessions; exclude internal traffic; stratify returning vs new.</td>
-              </tr>
-              <tr>
-                <td><strong>Primary metric</strong></td>
-                <td>Checkout completion rate.</td>
-              </tr>
-              <tr>
-                <td><strong>Guardrails</strong></td>
-                <td>Chargeback rate, refund rate, payment failure rate, LCP/INP.</td>
-              </tr>
-              <tr>
-                <td><strong>Duration</strong></td>
-                <td>Minimum 1 full week (weekday + weekend); extend to reach statistical power.</td>
-              </tr>
-              <tr>
-                <td><strong>Rollback triggers</strong></td>
-                <td>Payment failures +20% vs control; chargebacks trending up; JS errors spiking.</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div className="response-section-title">Launch checklist</div>
+      <div className="response-section-title">Actions</div>
       <div className="action-cards">
-        <div className="action-card visible done">
-          <div className="action-card-header">
-            <span className="platform-badge">QA</span>
-            <span className="action-type-pill done">Pre-launch</span>
-            <span className="action-title">Edge case test matrix</span>
-          </div>
-          <div className="action-description">
-            International addresses, PO boxes, coupons + promo stacking, split shipments, and gift cards. All must pass before ramp.
-          </div>
-        </div>
         <div className="action-card visible pending">
           <div className="action-card-header">
-            <span className="platform-badge">Observability</span>
-            <span className="action-type-pill pending">Pre-launch</span>
-            <span className="action-title">Instrumentation + anomaly alerts</span>
+            <span className="platform-badge">Gmail</span>
+            <span className="action-type-pill pending">Suggested</span>
+            <span className="action-title">Draft the 10am pre-read</span>
           </div>
           <div className="action-description">
-            Events: <span className="code-highlight">checkout_step_viewed</span>, <span className="code-highlight">checkout_error_shown</span>, <span className="code-highlight">order_completed</span>. Sentry alerts on checkout JS errors; anomaly monitor on completion rate.
+            Draft a concise brief to CEO/CFO summarizing: paid cohort retention drag + denim margin dilution + a counter-proposal to hit growth without losing margin.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">Draft email</button>
+            <button className="action-btn-ghost">Not now</button>
+          </div>
+        </div>
+
+        <div className="action-card visible pending">
+          <div className="action-card-header">
+            <span className="platform-badge">Slack</span>
+            <span className="action-type-pill pending">Suggested</span>
+            <span className="action-title">Alert the buying team</span>
+          </div>
+          <div className="action-description">
+            Flag that denim is scaling as a margin drag; request a focused review of the two lowest-margin denim SKUs for pricing correction.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">Message #buying</button>
+            <button className="action-btn-ghost">Later</button>
+          </div>
+        </div>
+
+        <div className="action-card visible pending">
+          <div className="action-card-header">
+            <span className="platform-badge">Klaviyo</span>
+            <span className="action-type-pill pending">Suggested</span>
+            <span className="action-title">Surface the high-LTV retention segment</span>
+          </div>
+          <div className="action-description">
+            Identify and tag top repurchase-rate customers so retention flows can be built immediately (high margin, low incremental cost).
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">Create segment</button>
+            <button className="action-btn-ghost">Dismiss</button>
           </div>
         </div>
       </div>
     </>
   )
 }
+
+// ─── Turn 2: Q2 plan (3 levers) ──────────────────────────────────────────────
+
+const Q2_WATERFALL = {
+  type: 'bar',
+  data: {
+    labels: ['Baseline', 'Retention flows', 'Denim reprice', 'Paid reallocation', 'Projected Q2'],
+    datasets: [
+      {
+        label: 'Base',
+        data: [0, 2.1, 3.5, 4.1, 0],
+        backgroundColor: 'rgba(0,0,0,0)',
+        borderColor: 'rgba(0,0,0,0)',
+        stack: 'waterfall',
+        borderSkipped: false,
+      },
+      {
+        label: 'Increment ($M)',
+        data: [2.1, 1.4, 0.6, 0.9, 5.0],
+        backgroundColor: [
+          'rgba(160, 167, 181, 0.55)',
+          'rgba(82, 201, 122, 0.75)',
+          'rgba(232, 197, 71, 0.65)',
+          'rgba(82, 201, 122, 0.75)',
+          'rgba(127, 119, 221, 0.70)',
+        ],
+        borderColor: [
+          'rgba(160, 167, 181, 0.9)',
+          'rgba(82, 201, 122, 1)',
+          'rgba(232, 197, 71, 1)',
+          'rgba(82, 201, 122, 1)',
+          'rgba(127, 119, 221, 1)',
+        ],
+        stack: 'waterfall',
+        borderRadius: 4,
+        borderSkipped: false,
+      },
+    ],
+  },
+  options: {
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => {
+            const v = ctx?.raw
+            const label = ctx?.label || ''
+            if (label === 'Denim reprice') return `$${v}M (margin recovery equivalent)`
+            return `$${v}M`
+          },
+        },
+      },
+    },
+    scales: {
+      x: { stacked: true },
+      y: {
+        stacked: true,
+        beginAtZero: true,
+        ticks: { callback: (v) => `$${v}M` },
+        suggestedMax: 6,
+      },
+    },
+  },
+}
+
+export function ProductResponse2({ onExpandChart }) {
+  return (
+    <>
+      <div className="ai-text">
+        <p>
+          Hitting 40% growth is achievable if you change the mix: grow retention first, fix denim margin before it scales, and use paid spend more selectively.
+        </p>
+        <p>
+          The model stacks three levers—retention flows, targeted denim repricing, and paid reallocation—into a budget-neutral path to ~38–43% growth while holding ~42–44% blended gross margin.
+        </p>
+      </div>
+
+      <div className="data-block">
+        <InlineChart
+          title="Path to 40% growth (waterfall: incremental impact by lever)"
+          onExpand={() => onExpandChart?.('q2-waterfall')}
+          config={Q2_WATERFALL}
+        />
+      </div>
+
+      <div className="response-section-title">Actions</div>
+      <div className="action-cards">
+        <div className="action-card visible pending">
+          <div className="action-card-header">
+            <span className="platform-badge">Gmail</span>
+            <span className="action-type-pill pending">Suggested</span>
+            <span className="action-title">Send the Q2 growth plan brief to CEO/CFO</span>
+          </div>
+          <div className="action-description">
+            Share the 3-lever plan with projections, guardrails, and a 30-day checkpoint. Emphasize: no budget increase required.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">Draft brief</button>
+            <button className="action-btn-ghost">Not now</button>
+          </div>
+        </div>
+
+        <div className="action-card visible pending">
+          <div className="action-card-header">
+            <span className="platform-badge">Google Drive</span>
+            <span className="action-type-pill pending">Suggested</span>
+            <span className="action-title">Save the model to Strategy</span>
+          </div>
+          <div className="action-description">
+            Save a clean version of the analysis (inputs, assumptions, outputs) to the Q2 Planning folder so stakeholders can review without spreadsheet sprawl.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">Save model</button>
+            <button className="action-btn-ghost">Later</button>
+          </div>
+        </div>
+
+        <div className="action-card visible pending">
+          <div className="action-card-header">
+            <span className="platform-badge">Klaviyo</span>
+            <span className="action-type-pill pending">Suggested</span>
+            <span className="action-title">Trigger retention flow setup</span>
+          </div>
+          <div className="action-description">
+            Generate a structured flow brief: segment definition, cadence, offer logic, success metrics, and weekly reporting.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">Create flow brief</button>
+            <button className="action-btn-ghost">Dismiss</button>
+          </div>
+        </div>
+      </div>
+    </>
+  )
+}
+
+// ─── Turn 3: Board deck section ──────────────────────────────────────────────
+
+export function ProductResponse3() {
+  return (
+    <>
+      <div className="ai-text">
+        <p>
+          Here’s the board-ready Q2 Growth Plan section. It’s structured as a decision memo: situation, opportunity, levers, projection, and the ask.
+        </p>
+      </div>
+
+      <div className="data-block">
+        <div className="data-table-wrap">
+          <table className="data-table" aria-label="Q2 Growth Plan — board copy">
+            <thead>
+              <tr>
+                <th>Section</th>
+                <th>Board copy</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Situation</strong></td>
+                <td>Growth is strong, but channel mix and category expansion are pressuring gross margin. Without changes, scaling to 40% revenue growth risks further margin compression.</td>
+              </tr>
+              <tr>
+                <td><strong>Opportunity</strong></td>
+                <td>Three high-conviction levers can deliver ~38–43% Q2 growth at ~42–44% blended gross margin—meeting the growth target while protecting profitability.</td>
+              </tr>
+              <tr>
+                <td><strong>Lever 1</strong></td>
+                <td><strong>Retention:</strong> activate high-LTV customers via targeted Klaviyo flows (margin-accretive growth).</td>
+              </tr>
+              <tr>
+                <td><strong>Lever 2</strong></td>
+                <td><strong>Denim margin correction:</strong> targeted repricing on two underperforming SKUs to neutralize mix-driven margin drag before scaling.</td>
+              </tr>
+              <tr>
+                <td><strong>Lever 3</strong></td>
+                <td><strong>Paid reallocation:</strong> shift spend from cold prospecting to warmer audiences (retargeting/lapsed) to improve ROAS without increasing budget.</td>
+              </tr>
+              <tr>
+                <td><strong>Ask</strong></td>
+                <td>Approve the proposed Q2 budget allocation with a 30-day performance checkpoint (growth and margin guardrails) to validate the plan and scale winners.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="response-section-title">Q2 projected outcomes</div>
+      <div className="data-block">
+        <div className="kpi-strip kpi-strip-3">
+          <div className="kpi-card">
+            <div className="kpi-label">Revenue growth</div>
+            <div className="kpi-value">38–43%</div>
+            <div className="kpi-change amber">Board target: 40%</div>
+          </div>
+          <div className="kpi-card">
+            <div className="kpi-label">Blended gross margin</div>
+            <div className="kpi-value">42–44%</div>
+            <div className="kpi-change amber">Margin floor: 42%</div>
+          </div>
+          <div className="kpi-card">
+            <div className="kpi-label">Incremental revenue</div>
+            <div className="kpi-value">$5.0M</div>
+            <div className="kpi-change up">Across 3 levers</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="response-section-title">Actions</div>
+      <div className="action-cards">
+        <div className="action-card visible pending">
+          <div className="action-card-header">
+            <span className="platform-badge">Gmail</span>
+            <span className="action-type-pill pending">Suggested</span>
+            <span className="action-title">Send to CEO for final review</span>
+          </div>
+          <div className="action-description">
+            Forward the board section for a quick pass (one sentence on longer-term brand positioning is the most likely add).
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">Draft email</button>
+            <button className="action-btn-ghost">Not now</button>
+          </div>
+        </div>
+
+        <div className="action-card visible pending">
+          <div className="action-card-header">
+            <span className="platform-badge">Slack</span>
+            <span className="action-type-pill pending">Suggested</span>
+            <span className="action-title">Notify the deck owner</span>
+          </div>
+          <div className="action-description">
+            Message the design/deck owner that the copy is board-ready and the chart is available in the Q2 Planning folder.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">Message #brand-creative</button>
+            <button className="action-btn-ghost">Later</button>
+          </div>
+        </div>
+
+        <div className="action-card visible pending">
+          <div className="action-card-header">
+            <span className="platform-badge">Slack</span>
+            <span className="action-type-pill pending">Suggested</span>
+            <span className="action-title">Kick off the 3 workstreams</span>
+          </div>
+          <div className="action-description">
+            Post one-paragraph briefs to #email-marketing, #buying, and #paid-social so the teams can start immediately on board approval.
+          </div>
+          <div className="action-btns">
+            <button className="action-btn-primary">Send briefs</button>
+            <button className="action-btn-ghost">Dismiss</button>
+          </div>
+        </div>
+      </div>
+    </>
+  )
+}
+

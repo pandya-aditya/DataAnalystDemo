@@ -1,3 +1,4 @@
+import { useMemo, useState } from 'react'
 import Response1 from './responses/Response1'
 import Response2 from './responses/Response2'
 import Response3 from './responses/Response3'
@@ -12,9 +13,20 @@ export default function AIResponse({
   roleStepIndex,
   text,
   onExpandChart,
-  onSuggestedPromptsChange,
   onAgentActionCompleted,
+  traceLines,
+  suggestedPrompts,
+  onSelectSuggestedPrompt,
 }) {
+  const [layoutSuggestedPrompts, setLayoutSuggestedPrompts] = useState([])
+
+  const resolvedSuggestedPrompts = useMemo(() => {
+    const explicit = Array.isArray(suggestedPrompts) ? suggestedPrompts : []
+    const fallback = Array.isArray(layoutSuggestedPrompts) ? layoutSuggestedPrompts : []
+    const base = explicit.length ? explicit : fallback
+    return Array.from(new Set(base.map(s => String(s || '').trim()).filter(Boolean))).slice(0, 6)
+  }, [suggestedPrompts, layoutSuggestedPrompts])
+
   const renderRaw = () => {
     if (roleCategory && Number.isFinite(roleStepIndex)) {
       const RoleComponent = getResponseStep(roleCategory, roleStepIndex)
@@ -35,12 +47,16 @@ export default function AIResponse({
     <div className="ai-response">
       <div className="ai-label">Nexus &nbsp;·&nbsp; just now</div>
       <AgentResponseLayout
-        onSuggestedPromptsChange={onSuggestedPromptsChange}
+        onSuggestedPromptsChange={setLayoutSuggestedPrompts}
         onAgentActionCompleted={onAgentActionCompleted}
       >
         {renderRaw()}
       </AgentResponseLayout>
-      <BrainDisclosure />
+      <BrainDisclosure
+        traceLines={traceLines}
+        suggestedPrompts={resolvedSuggestedPrompts}
+        onSelectSuggestedPrompt={onSelectSuggestedPrompt}
+      />
     </div>
   )
 }

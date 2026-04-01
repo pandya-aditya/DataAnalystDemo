@@ -393,7 +393,14 @@ export default function App() {
         transformChatSessionMessages(sessionId, prev => prev.map(m => m.type === 'trace' ? { ...m, collapsing: true } : m))
         delay(() => {
           const aiMessage = session?.category
-            ? { type: 'ai', roleCategory: session.category, roleStepIndex: stepIndex, text: step.ai?.text }
+            ? {
+              type: 'ai',
+              roleCategory: session.category,
+              roleStepIndex: stepIndex,
+              text: step.ai?.text,
+              traceLines: Array.isArray(step?.traces) ? step.traces : [],
+              suggestedPrompts: Array.isArray(step?.suggestedPrompts) ? step.suggestedPrompts : [],
+            }
             : (
               step.ai?.templateId != null
                 ? { type: 'ai', templateId: step.ai.templateId }

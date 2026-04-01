@@ -19,6 +19,9 @@ const SOURCE_ALIASES = {
   Gorgias: 'Gorgias',
   Returnly: 'Returnly',
   ShipStation: 'ShipStation',
+  Gmail: 'Gmail',
+  'Google Drive': 'Google Drive',
+  AWS: 'AWS',
 }
 
 function flattenChildren(children) {
