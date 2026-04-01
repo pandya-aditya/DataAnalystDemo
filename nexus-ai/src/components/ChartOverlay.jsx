@@ -4,6 +4,179 @@ import { withChartTheme } from './chartTheme'
 
 
 function getOverlayChartConfig(chartKey) {
+  if (chartKey === 'q4_margin_erosion') {
+    return {
+      type: 'bar',
+      data: {
+        labels: ['October', 'November', 'December'],
+        datasets: [
+          {
+            type: 'bar',
+            label: 'Organic customer gross margin',
+            data: [49, 48, 47],
+            backgroundColor: '#52C97A',
+            borderRadius: 6,
+            yAxisID: 'y',
+          },
+          {
+            type: 'bar',
+            label: 'Paid-acquired customer gross margin',
+            data: [41, 36, 31],
+            backgroundColor: '#E05252',
+            borderRadius: 6,
+            yAxisID: 'y',
+          },
+          {
+            type: 'bar',
+            label: 'New SKU blended gross margin',
+            data: [38, 34, 31],
+            backgroundColor: '#E8C547',
+            borderRadius: 6,
+            yAxisID: 'y',
+          },
+          {
+            type: 'line',
+            label: 'Meta monthly spend',
+            data: [142000, 198000, 231000],
+            borderColor: '#7C6CF6',
+            backgroundColor: '#7C6CF6',
+            pointRadius: 3,
+            tension: 0.25,
+            fill: false,
+            yAxisID: 'y1',
+          },
+          {
+            type: 'line',
+            label: 'Company GM target (42%)',
+            data: [42, 42, 42],
+            borderColor: 'rgba(232, 197, 71, 0.9)',
+            borderDash: [6, 6],
+            pointRadius: 0,
+            tension: 0,
+            fill: false,
+            yAxisID: 'y',
+          },
+        ],
+      },
+      options: {
+        interaction: { mode: 'index', intersect: false },
+        scales: {
+          y: {
+            min: 28,
+            max: 52,
+            ticks: { callback: (v) => `${v}%` },
+          },
+          y1: {
+            position: 'right',
+            grid: { drawOnChartArea: false },
+            ticks: { callback: (v) => `$${Math.round(v / 1000)}k` },
+          },
+        },
+      },
+    }
+  }
+
+  if (chartKey === 'q1_margin_projection') {
+    return {
+      type: 'line',
+      data: {
+        labels: Array.from({ length: 13 }, (_, i) => `Week ${i + 1}`),
+        datasets: [
+          {
+            label: 'Current paid-heavy plan margin trajectory (baseline)',
+            data: [33.0, 33.0, 33.1, 33.1, 33.2, 33.2, 33.3, 33.4, 33.4, 33.5, 33.6, 33.7, 34.0],
+            borderColor: '#E8C547',
+            backgroundColor: 'rgba(232, 197, 71, 0.18)',
+            tension: 0.25,
+            fill: true,
+            pointRadius: 0,
+          },
+          {
+            label: 'Projected margin with Klaviyo shift',
+            data: [33.0, 33.5, 34.5, 35.5, 36.3, 37.0, 37.5, 38.0, 38.3, 38.6, 38.7, 38.8, 38.8],
+            borderColor: '#52C97A',
+            backgroundColor: 'rgba(82, 201, 122, 0.18)',
+            tension: 0.25,
+            fill: true,
+            pointRadius: 0,
+          },
+          {
+            label: 'Company gross margin target = 42%',
+            data: Array.from({ length: 13 }, () => 42),
+            borderColor: 'rgba(232, 197, 71, 0.9)',
+            borderDash: [6, 6],
+            tension: 0,
+            fill: false,
+            pointRadius: 0,
+          },
+          {
+            label: 'Realistic Q1 ceiling under reallocation = 38.5%',
+            data: Array.from({ length: 13 }, () => 38.5),
+            borderColor: 'rgba(124, 108, 246, 0.9)',
+            borderDash: [6, 6],
+            tension: 0,
+            fill: false,
+            pointRadius: 0,
+          },
+        ],
+      },
+      options: {
+        interaction: { mode: 'index', intersect: false },
+        scales: {
+          y: {
+            min: 30,
+            max: 50,
+            ticks: { callback: (v) => `${v}%` },
+          },
+        },
+      },
+    }
+  }
+
+  if (chartKey === 'q1_scenarios') {
+    const labels = [
+      'Scenario A — Reallocation + COGS fixed',
+      'Scenario B — Reallocation only, COGS unresolved',
+      'Scenario C — Reallocation + SKU swap in flows, COGS unresolved',
+      'Scenario D — No changes made (baseline)',
+    ]
+
+    return {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Projected Q1 blended gross margin',
+            data: [38.5, 35.2, 37.8, 33.5],
+            backgroundColor: ['#52C97A', '#E8C547', '#7C6CF6', '#6B7280'],
+            borderRadius: 8,
+          },
+          {
+            type: 'line',
+            label: 'Company gross margin target = 42%',
+            data: labels.map((y) => ({ x: 42, y })),
+            borderColor: 'rgba(232, 197, 71, 0.9)',
+            borderDash: [6, 6],
+            pointRadius: 0,
+            showLine: true,
+          },
+        ],
+      },
+      options: {
+        indexAxis: 'y',
+        plugins: { legend: { position: 'bottom' } },
+        scales: {
+          x: {
+            min: 30,
+            max: 50,
+            ticks: { callback: (v) => `${v}%` },
+          },
+        },
+      },
+    }
+  }
+
   if (chartKey === 'waterfall') {
     return {
       type: 'bar',

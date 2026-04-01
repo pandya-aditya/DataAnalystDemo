@@ -293,68 +293,259 @@ const stepsFor = ({ name, industry, role, category }) => {
       title: `${roleLabel} Starter Session`,
       steps: [
         {
-          prompt: `I’m a ${roleLabel}. Define the 10 most important KPIs for ${industryLabel} and propose a clean metric definition layer (including edge cases).`,
+          prompt: `Our Q4 revenue grew 18% YoY but profit margins dropped 4 points. My CMO says we over-invested in paid acquisition, but our VP of Finance thinks it's rising COGS from our new SKUs. Who's right, and where should we cut or invest heading into Q1?`,
           traces: [
-            'Identifying business model and key value drivers...',
-            'Selecting KPI set (acquisition, conversion, retention, profitability)...',
-            'Drafting metric definitions and edge case handling...',
-            'Ready.',
+            {
+              summary: 'Pulled Q4 order + customer cohort data from Shopify.',
+              detail: {
+                dataPulled: [
+                  'Shopify: order-level revenue',
+                  'Shopify: channel attribution tags',
+                  'Shopify: repeat purchase flags',
+                  'Shopify: SKU-level revenue (Q4)',
+                ],
+                analysis: [
+                  'Defined the outcome: decompose the 4-pt gross margin drop into drivers (mix vs unit economics).',
+                  'Aligned reporting grain across sources to month (Oct/Nov/Dec).',
+                ],
+                output: [
+                  'Monthly tables: revenue × channel/cohort and revenue × SKU.',
+                ],
+              },
+            },
+            {
+              summary: 'Pulled COGS actuals vs forecast for new SKUs.',
+              detail: {
+                dataPulled: [
+                  'AWS (COGS table): per-SKU cost of goods, fulfillment costs',
+                  'COGS actuals vs forecast for 3 new SKUs',
+                ],
+                analysis: [
+                  'Computed SKU gross margin deltas vs forecast.',
+                  'Weighted COGS variance by SKU revenue contribution.',
+                ],
+                output: [
+                  'COGS variance contribution to blended margin change.',
+                ],
+              },
+            },
+            {
+              summary: 'Pulled paid media efficiency + spend by month from Meta.',
+              detail: {
+                dataPulled: [
+                  'Meta Ads API: monthly spend (Oct/Nov/Dec)',
+                  'Meta Ads API: CPM trends + ROAS by campaign',
+                  'Meta: new vs retargeting split',
+                ],
+                analysis: [
+                  'Identified month-over-month paid efficiency degradation (Nov/Dec).',
+                  'Isolated paid channel mix shift vs rate changes.',
+                ],
+                output: [
+                  'Spend series + paid-acquired gross margin series for visualization.',
+                ],
+              },
+            },
+            {
+              summary: 'Validated LTV quality by acquisition source using Klaviyo cohorts.',
+              detail: {
+                dataPulled: [
+                  'Klaviyo: revenue attribution by channel',
+                  'Klaviyo: LTV estimates by acquisition cohort',
+                ],
+                analysis: [
+                  'Compared LTV:CAC between paid vs organic cohorts.',
+                  'Checked repeat purchase rate differences after controlling for AOV/category.',
+                ],
+                output: [
+                  'Cohort quality delta: paid-acquired customers repurchase less and underperform on LTV:CAC.',
+                ],
+              },
+            },
+            {
+              summary: 'Benchmarked against internal targets (OKRs) and synthesized a margin decomposition.',
+              detail: {
+                dataPulled: [
+                  'Google Drive (Q4 OKR doc): GM target 42%',
+                  'Google Drive (Q4 OKR doc): CAC payback target 4.5 months',
+                ],
+                analysis: [
+                  'Contribution margin decomposition: mix/rate effects to attribute margin delta.',
+                  'Identified primary driver: paid channel inefficiency vs secondary driver: new SKU COGS overrun.',
+                ],
+                output: [
+                  'Attribution: ~2.6 of 4 margin points from paid inefficiency; ~1.4 from new SKU COGS overrun.',
+                  'Decision: cut Meta TOF 20–25%, invest in retention/CRM, and put 60-day SKU review in place.',
+                ],
+              },
+            },
           ],
           ai: {
             text: asText`
-              KPI set (top 10)
-              1) Revenue (gross/net)  2) Gross margin  3) Contribution margin
-              4) Conversion rate      5) AOV           6) CAC (blended + by channel)
-              7) LTV (cohort-based)   8) Repeat purchase rate
-              9) Refund/return rate   10) On-time fulfillment rate
+              Both are partially right — but your CMO has the larger problem.
 
-              Metric definition layer (clean + consistent)
-              - Revenue: define gross vs net (discounts, shipping, tax), and separate refunds/chargebacks.
-              - CAC: allocate spend to cohorts; handle multi-touch vs last-touch; exclude brand search if needed.
-              - LTV: cohort-based with censoring; define window (30/60/90d) and include margin if you need LTV: CAC.
-              - Conversion: define session vs user-level; bot filtering; exclude internal traffic.
-              - Returns: tie return to original order; handle partial returns and exchanges explicitly.
+              Paid acquisition (primarily Meta) drove 61% of new customer revenue in Q4, but those customers carried a 34% lower LTV-to-CAC ratio than your organic cohort, meaning you bought growth at a loss. Your 3 new SKUs are also running 11% above their COGS forecast, which accounts for roughly 1.4 of the 4 margin points lost. The remaining 2.6 points came from paid channel inefficiency — inflated CPMs in November and December and a drop in return purchase rate among paid-acquired customers.
+
+              Your core business is healthy. The problem is allocation, not the business model.
+
+              Recommended next steps:
+              - Reduce Meta top-of-funnel spend by 20–25% in Q1 and reallocate toward Klaviyo email flows targeting your existing high-LTV segment, which converts at 3.1x the margin of paid new customers.
+              - Put a 60-day review on the 3 underperforming SKUs. Either renegotiate supplier pricing or discontinue the lowest-margin variant.
+              - Set a hard CAC payback threshold of 5 months before approving any paid spend increase in Q1. Your Google Drive OKR doc specifies a 4.5-month target — you're currently at 7.2.
             `,
           },
         },
         {
-          prompt: `Propose 6 automated data quality checks for this KPI layer and the alert thresholds.`,
+          prompt: `Can you model what Q1 margin looks like if we reallocate 25% of paid spend to Klaviyo retention flows?\n\n*(This is suggested prompt #2)*`,
           traces: [
-            'Drafting freshness, volume, and schema checks...',
-            'Defining anomaly thresholds and escalation paths...',
-            'Ready.',
+            {
+              summary: 'Established paid vs retention unit economics baselines for Q4 → Q1 planning.',
+              detail: {
+                dataPulled: [
+                  'AWS (revenue + margin): gross margin by order type (new vs repeat)',
+                  'AWS (revenue + margin): margin by acquisition channel',
+                ],
+                analysis: [
+                  'Set baseline margins for the two revenue types (paid-new vs retention).',
+                  'Calibrated “per dollar of spend” outcome for paid acquisition at current efficiency.',
+                ],
+                output: [
+                  'Baseline margin delta used to forecast mix-driven margin change.',
+                ],
+              },
+            },
+            {
+              summary: 'Pulled Klaviyo flow benchmarks and segment headroom constraints.',
+              detail: {
+                dataPulled: [
+                  'Klaviyo: flow conversion rates + revenue per recipient',
+                  'Klaviyo: current send cadence and segment size (high-LTV cohort)',
+                  'Google Drive: brand guideline contact cap (8 emails/month)',
+                ],
+                analysis: [
+                  'Checked capacity: current cadence (5/month) vs cap (8/month).',
+                  'Established a realistic revenue ceiling for retention flows.',
+                ],
+                output: [
+                  'Input distributions for retention lift modeling.',
+                ],
+              },
+            },
+            {
+              summary: 'Modeled a counterfactual reallocation (25% Meta budget → retention flows).',
+              detail: {
+                dataPulled: [
+                  'Meta spend baseline: quarterly reallocation amount (~$145K)',
+                  'Shopify: AOV + repeat purchase frequency inputs for the retention segment',
+                ],
+                analysis: [
+                  'Built baseline vs reallocation scenarios over 13 weeks.',
+                  'Monte Carlo sensitivity using historical flow conversion variance (mean 4.2%, std 0.9%).',
+                ],
+                output: [
+                  'Projected blended margin improvement range for Q1.',
+                ],
+              },
+            },
+            {
+              summary: 'Synthesized scenario outputs into a margin trajectory with risk notes.',
+              detail: {
+                dataPulled: [
+                  'Scenario outputs: incremental retention revenue and margin mix effect',
+                ],
+                analysis: [
+                  'Converted incremental revenue into blended gross margin movement.',
+                  'Flagged sensitivity to segment size / suppression / fatigue.',
+                ],
+                output: [
+                  'Median margin recovery ~3.4 pts (90% CI: 3.1–3.8).',
+                ],
+              },
+            },
           ],
           ai: {
             text: asText`
-              Automated DQ checks (recommended)
-              1) Freshness: core tables updated within SLA (alert if >2× expected delay).
-              2) Volume: orders/events within expected band (alert if ±3σ vs 28-day baseline).
-              3) Null rate: required fields (order_id, customer_id, revenue) null rate <0.5%.
-              4) Duplicates: order_id uniqueness (alert if duplicates >0).
-              5) Referential integrity: line_items join coverage >99.5%.
-              6) Spend-to-order mapping coverage: attribution joins above threshold; alert if coverage drops >5 pts.
+              If you reallocate 25% of your current Meta budget (~$145K quarterly) into Klaviyo retention flows targeting your top organic LTV segment, the model projects a Q1 blended gross margin improvement of 3.1 to 3.8 percentage points — nearly fully recovering the 4-point decline you saw in Q4.
+
+              Here is what drives that recovery: Klaviyo retention flows generate revenue at near-zero marginal CAC. Your existing high-LTV segment has an average 68% gross margin on repurchase orders versus 31% on net-new paid customers. Shifting revenue mix even modestly toward retention significantly moves the blended margin. The $145K freed from Meta would have generated approximately $390K in revenue at the paid cohort's current efficiency — but at a 31% margin. That same $145K invested in Klaviyo infrastructure and offers is projected to generate $480–$520K in incremental retention revenue at a 62% margin, based on your current flow conversion benchmarks and segment size.
+
+              The one risk: this only holds if your retention segment is not already over-messaged. Your Google Drive brand guidelines flag an 8-email-per-month contact cap — current flow cadence is at 5, so you have room.
+
+              Recommended next steps:
+              - Approve the Klaviyo flow build for the high-LTV retention segment this week — the Q1 revenue window is narrow.
+              - Brief your Meta buyer to shift the freed budget to retargeting existing customers rather than zeroing it out, which preserves some paid efficiency at lower CPMs.
+              - Revisit this model in week 4 of Q1 with actual flow conversion data to confirm the margin trajectory.
             `,
           },
         },
         {
-          prompt: `Create a dashboard outline for executives vs operators (two views) and what each should include.`,
+          prompt: `How does this margin recovery change if our new SKU COGS problem isn't fixed in Q1?`,
           traces: [
-            'Selecting executive vs operator slices...',
-            'Organizing sections by decision cadence...',
-            'Ready.',
+            {
+              summary: 'Pulled new SKU margin actuals vs forecast and weighted by sales volume.',
+              detail: {
+                dataPulled: [
+                  'AWS (COGS + margin): per-SKU margin actuals for new SKUs',
+                  'Shopify: SKU-level sales volume and revenue contribution (Q4)',
+                ],
+                analysis: [
+                  'Estimated blended margin drag if COGS overrun persists into Q1.',
+                  'Identified high-volume SKU(s) with the largest leverage on margin recovery.',
+                ],
+                output: [
+                  'COGS-unresolved scenario input for Q1 margin model.',
+                ],
+              },
+            },
+            {
+              summary: 'Checked whether proposed retention flows would feature the underperforming SKUs.',
+              detail: {
+                dataPulled: [
+                  'Google Drive: Q1 Campaign Calendar (featured SKUs planned for flows)',
+                  'Klaviyo: flow conversion assumptions and offer types',
+                ],
+                analysis: [
+                  'Detected interaction effect: retention lift can be margin-diluted if flows anchor on low-margin new SKUs.',
+                  'Separated independent effects vs joint interaction term (COGS × flow content).',
+                ],
+                output: [
+                  'Decision tree across 4 scenarios (COGS fixed yes/no × SKU swap yes/no).',
+                ],
+              },
+            },
+            {
+              summary: 'Ran scenario modeling and identified the dominant “fast” path.',
+              detail: {
+                dataPulled: [
+                  'Scenario A: Reallocation + COGS fixed',
+                  'Scenario B: Reallocation only (COGS unresolved)',
+                  'Scenario C: Reallocation + SKU swap in flows (COGS unresolved)',
+                  'Scenario D: Baseline (no changes)',
+                ],
+                analysis: [
+                  'Quantified recovery deltas: reallocation benefit is cut ~55% if COGS is unresolved and flows feature low-margin SKUs.',
+                  'Identified SKU swap as a near-optimal mitigation that does not depend on supplier renegotiation.',
+                ],
+                output: [
+                  'Projected Q1 GM: A 38.5%, B 35.2%, C 37.8%, D 33.5%.',
+                ],
+              },
+            },
           ],
           ai: {
             text: asText`
-              Executive view (weekly)
-              - Revenue, margin, CAC, LTV, ROAS, conversion, retention.
-              - What changed vs last week and why (top 3 drivers).
-              - Risks: anomalies, inventory/fulfillment constraints, refund spikes.
+              If the new SKU COGS overrun is not resolved in Q1, the Klaviyo reallocation still improves your margin — but the recovery is cut roughly in half.
 
-              Operator view (daily)
-              - Channel-level spend efficiency (CAC/ROAS) + creative/campaign drilldowns.
-              - Funnel diagnostics (PDP → ATC → checkout → purchase) with breakpoints.
-              - Inventory/fulfillment SLA and backlog; returns/reasons by SKU.
-              - Alerts + “next best actions” checklist.
+              Instead of recovering 3.1–3.8 points, you recover approximately 1.5–2.1 points, landing your Q1 blended gross margin in the 34–36% range versus the 38–39% range in the clean scenario. The reason is compounding: your new SKUs are being promoted in some of the same Klaviyo retention flows we are proposing to build. If those SKUs carry 31% margins and your flow offers are anchored to them (which your Q1 campaign calendar in Google Drive currently shows), the retention revenue you generate is partially margin-diluted before it even hits the blended rate.
+
+              The practical implication is that the Klaviyo strategy and the SKU decision are not independent. You need to do one of three things before the flows launch: redirect flow offers away from the underperforming SKUs toward your highest-margin catalog items, renegotiate COGS on at least the top-volume new SKU, or accept the reduced recovery and plan a Q2 corrective.
+
+              Of the three, redirecting flow offers to high-margin SKUs is the fastest and costs nothing. Your top 5 SKUs by margin average 58% gross margin — anchoring the retention flows to those alone recovers 2.9 points even with the COGS problem unresolved.
+
+              Recommended next steps:
+              - Immediately audit which SKUs are featured in the planned Q1 Klaviyo flows and swap any underperforming new SKUs for your top-margin catalog items.
+              - Open a supplier renegotiation on your highest-volume new SKU — even a 4-point COGS reduction gets you back to the 38% margin scenario.
+              - Update the Q1 campaign calendar in Google Drive to reflect the SKU swap so the broader team is aligned before flows go live.
             `,
           },
         },
