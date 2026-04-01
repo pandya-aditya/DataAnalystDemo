@@ -497,6 +497,10 @@ input, textarea { font-family: inherit; }
   flex-shrink: 0;
   transition: max-height 300ms var(--ease-out), opacity 300ms var(--ease-out), padding 300ms;
   max-height: 720px;
+  width: 100%;
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .thought-trace.collapsing {
@@ -614,6 +618,10 @@ input, textarea { font-family: inherit; }
 .ai-response {
   flex-shrink: 0;
   animation: responseIn 300ms var(--ease-out) both;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
 }
 @keyframes responseIn {
   from { opacity: 0; transform: translateY(8px); }
@@ -628,6 +636,7 @@ input, textarea { font-family: inherit; }
   display: flex;
   align-items: center;
   gap: 8px;
+  align-self: stretch;
 }
 .ai-label::after {
   content: '';
@@ -643,16 +652,21 @@ input, textarea { font-family: inherit; }
   border-top: none;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  align-self: stretch;
 }
 .brain-bar {
   width: 100%;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
   flex-wrap: wrap;
 }
-.brain-bar .suggestions { margin-top: 0; }
+.brain-bar .suggestions {
+  margin-top: 0;
+  justify-content: center;
+}
 .brain-toggle {
   display: inline-flex;
   align-items: center;
@@ -704,6 +718,10 @@ input, textarea { font-family: inherit; }
   background: var(--bg-elevated);
   padding: 12px 14px;
   animation: fadeIn 160ms var(--ease-out) both;
+  width: 100%;
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
 }
 .brain-meta {
   display: flex;
@@ -752,7 +770,9 @@ input, textarea { font-family: inherit; }
 .agent-response-sections {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 12px;
+  width: 100%;
 }
 .agent-section {
   border: none;
@@ -760,6 +780,8 @@ input, textarea { font-family: inherit; }
   background: transparent;
   box-shadow: none;
   padding: 0;
+  width: 100%;
+  max-width: 720px;
 }
 .agent-section-title {
   font-size: 10px;
@@ -797,6 +819,10 @@ input, textarea { font-family: inherit; }
   line-height: 1.5;
   color: var(--text-secondary);
   animation: fadeIn 220ms var(--ease-out) both;
+  width: 100%;
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
 }
 .agent-action-feedback-icon {
   flex-shrink: 0;
@@ -822,6 +848,8 @@ input, textarea { font-family: inherit; }
   color: var(--text-primary);
   line-height: 1.75;
   max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
   margin-bottom: 24px;
 }
 .ai-text p + p { margin-top: 12px; }
@@ -831,6 +859,10 @@ input, textarea { font-family: inherit; }
    ============================================================ */
 .data-block {
   margin-bottom: 20px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: 720px;
   animation: fadeIn 300ms var(--ease-out) both;
   animation-delay: 300ms;
   opacity: 0;
@@ -901,6 +933,8 @@ input, textarea { font-family: inherit; }
   padding: 14px 14px 12px;
   width: 100%;
   max-width: 680px;
+  margin-left: auto;
+  margin-right: auto;
 }
 .chart-canvas-wrap {
   height: 180px;
@@ -992,6 +1026,9 @@ input, textarea { font-family: inherit; }
   padding: 14px 18px;
   background: var(--accent-dim);
   margin-bottom: 20px;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 720px;
   font-family: 'Lora', serif;
   font-size: 13px;
   color: var(--text-primary);
@@ -1927,6 +1964,8 @@ input, textarea { font-family: inherit; }
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
   margin-top: 12px;
+  margin-left: auto;
+  margin-right: auto;
   border: 1px solid var(--border-subtle);
 }
 .mini-table th {
